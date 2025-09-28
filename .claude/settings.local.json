@@ -4,7 +4,13 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git remote add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(php:*)",
+      "WebFetch(domain:localhost)",
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/test_connection.php\")",
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=product_inventory\")",
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=daily_sales\")",
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=staff_products\")"
     ],
     "deny": [],
     "ask": []
