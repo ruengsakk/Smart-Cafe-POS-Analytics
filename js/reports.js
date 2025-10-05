@@ -1306,62 +1306,6 @@ function printReport(reportType) {
     }
 }
 
-// Add syntax highlighting for better learning experience
-function highlightSqlSyntax() {
-    document.querySelectorAll('.sql-dynamic').forEach(container => {
-        // This function can be extended to add more sophisticated highlighting
-        // For now, the HTML templates already include syntax highlighting classes
-    });
-}
+// SQL display functions removed for production version
 
-// Function to copy SQL to clipboard
-function copySqlToClipboard(reportType) {
-    const sqlContainer = document.getElementById(`${reportType.replace('_', '-')}-sql`);
-    if (sqlContainer) {
-        const sqlText = sqlContainer.textContent;
-        navigator.clipboard.writeText(sqlText).then(() => {
-            // Show success notification
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #4caf50;
-                color: white;
-                padding: 10px 20px;
-                border-radius: 5px;
-                z-index: 9999;
-                opacity: 0;
-                transition: opacity 0.3s;
-            `;
-            notification.textContent = 'คัดลอก SQL แล้ว!';
-            document.body.appendChild(notification);
-
-            setTimeout(() => notification.style.opacity = '1', 100);
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                setTimeout(() => document.body.removeChild(notification), 300);
-            }, 2000);
-        });
-    }
-}
-
-// Add copy SQL button functionality
-function addCopySqlButtons() {
-    Object.keys(sqlTemplates).forEach(reportType => {
-        const sqlContainer = document.getElementById(`${reportType.replace('_', '-')}-sql`);
-        if (sqlContainer && !sqlContainer.nextElementSibling?.classList.contains('sql-controls')) {
-            const controls = document.createElement('div');
-            controls.className = 'sql-controls mt-2';
-            controls.innerHTML = `
-                <button class="btn btn-outline-secondary btn-sm me-2" onclick="copySqlToClipboard('${reportType}')">
-                    <i class="fas fa-copy"></i> คัดลอก SQL
-                </button>
-                <button class="btn btn-outline-info btn-sm" onclick="showSqlExplanation('${reportType}')">
-                    <i class="fas fa-question-circle"></i> อธิบาย SQL
-                </button>
-            `;
-            sqlContainer.parentNode.insertBefore(controls, sqlContainer.nextSibling);
-        }
-    });
-}
+// SQL button functionality removed for production version
