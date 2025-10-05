@@ -1365,3 +1365,645 @@ function addCopySqlButtons() {
         }
     });
 }
+
+// =============================================================================
+// DYNAMIC SQL QUERY UPDATE SYSTEM
+// =============================================================================
+
+/**
+ * Comprehensive SQL Template System
+ * Maps each report type to its base SQL template with placeholders for dynamic WHERE clauses
+ */
+const sqlTemplates = {
+    daily_sales: {
+        base: `-- รายงานยอดขายรายวัน: แสดงสถิติการขายในแต่ละวัน
+SELECT
+    DATE(order_date) AS วันที่,
+    COUNT(*) AS จำนวนออเดอร์,
+    SUM(total_amount) AS ยอดขายรวม,
+    ROUND(AVG(total_amount), 2) AS ยอดขายเฉลี่ย,
+    MIN(total_amount) AS ยอดขายต่ำสุด,
+    MAX(total_amount) AS ยอดขายสูงสุด
+FROM orders
+WHERE {{WHERE_CLAUSE}}
+GROUP BY DATE(order_date)
+ORDER BY order_date DESC;`,
+        defaultWhere: 'order_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)',
+        filterFields: ['startDate', 'endDate']
+    },
+
+    monthly_sales: {
+        base: `-- รายงานยอดขายรายเดือน: สรุปข้อมูลการขายในแต่ละเดือน
+SELECT
+    YEAR(order_date) AS ปี,
+    MONTH(order_date) AS เดือน,
+    CASE MONTH(order_date)
+        WHEN 1 THEN 'มกราคม' WHEN 2 THEN 'กุมภาพันธ์' WHEN 3 THEN 'มีนาคม' WHEN 4 THEN 'เมษายน'
+        WHEN 5 THEN 'พฤษภาคม' WHEN 6 THEN 'มิถุนายน' WHEN 7 THEN 'กรกฎาคม' WHEN 8 THEN 'สิงหาคม'
+        WHEN 9 THEN 'กันยายน' WHEN 10 THEN 'ตุลาคม' WHEN 11 THEN 'พฤศจิกายน' WHEN 12 THEN 'ธันวาคม'
+    END AS ชื่อเดือน,
+    COUNT(*) AS จำนวนออเดอร์,
+    SUM(total_amount) AS ยอดขายรวม,
+    ROUND(AVG(total_amount), 2) AS ยอดขายเฉลี่ย
+FROM orders
+WHERE {{WHERE_CLAUSE}}
+GROUP BY YEAR(order_date), MONTH(order_date)
+ORDER BY ปี DESC, เดือน DESC;`,
+        defaultWhere: '1=1',
+        filterFields: ['startDate', 'endDate']
+    },
+
+    top_products: {
+        base: `-- รายงานสินค้าขายดี: JOIN ตาราง order_items, menus, categories และ orders
+SELECT
+    m.name AS ชื่อสินค้า,
+    c.name AS หมวดหมู่,
+    SUM(oi.quantity) AS จำนวนที่ขาย,
+    SUM(oi.subtotal) AS ยอดขายรวม,
+    ROUND(AVG(oi.unit_price), 2) AS ราคาเฉลี่ย,
+    COUNT(DISTINCT oi.order_id) AS จำนวนออเดอร์
+FROM order_items oi
+JOIN menus m ON oi.menu_id = m.id
+JOIN categories c ON m.category_id = c.id
+JOIN orders o ON oi.order_id = o.id
+WHERE {{WHERE_CLAUSE}}
+GROUP BY m.id, m.name, c.name
+ORDER BY จำนวนที่ขาย DESC
+LIMIT 10;`,
+        defaultWhere: 'o.order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)',
+        filterFields: ['startDate', 'endDate', 'category']
+    },
+
+    staff_performance: {
+        base: `-- ผลงานพนักงาน: ใช้ INNER JOIN เพื่อหาพนักงานที่มีออเดอร์เท่านั้น
+SELECT
+    s.name AS ชื่อพนักงาน,
+    s.position AS ตำแหน่ง,
+    COUNT(o.id) AS จำนวนออเดอร์,
+    SUM(o.total_amount) AS ยอดขายรวม,
+    ROUND(AVG(o.total_amount), 2) AS ยอดขายเฉลี่ย,
+    MIN(o.order_date) AS วันแรกที่ขาย,
+    MAX(o.order_date) AS วันล่าสุดที่ขาย
+FROM staff s
+INNER JOIN orders o ON s.id = o.staff_id
+WHERE {{WHERE_CLAUSE}}
+GROUP BY s.id, s.name, s.position
+ORDER BY ยอดขายรวม DESC;`,
+        defaultWhere: 'o.order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)',
+        filterFields: ['startDate', 'endDate', 'staff']
+    },
+
+    payment_analysis: {
+        base: `-- วิเคราะห์วิธีการชำระเงิน: การคำนวณเปอร์เซ็นต์ด้วย Subquery
+SELECT
+    CASE
+        WHEN payment_type = 'cash' THEN 'เงินสด'
+        WHEN payment_type = 'credit_card' THEN 'บัตรเครดิต'
+        WHEN payment_type = 'promptpay' THEN 'พร้อมเพย์'
+        ELSE payment_type
+    END AS วิธีการชำระเงิน,
+    COUNT(*) AS จำนวนออเดอร์,
+    SUM(total_amount) AS ยอดขายรวม,
+    ROUND(AVG(total_amount), 2) AS ยอดขายเฉลี่ย
+FROM orders
+WHERE {{WHERE_CLAUSE}}
+GROUP BY payment_type
+ORDER BY จำนวนออเดอร์ DESC;`,
+        defaultWhere: 'order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)',
+        filterFields: ['startDate', 'endDate', 'paymentType']
+    },
+
+    hourly_analysis: {
+        base: `-- วิเคราะห์ตามชั่วโมง: ใช้ HOUR() function และ CASE WHEN สำหรับจัดกลุ่ม
+SELECT
+    HOUR(order_time) AS ชั่วโมง,
+    CASE
+        WHEN HOUR(order_time) BETWEEN 6 AND 10 THEN 'ช่วงเช้า'
+        WHEN HOUR(order_time) BETWEEN 11 AND 14 THEN 'ช่วงเที่ยง'
+        WHEN HOUR(order_time) BETWEEN 15 AND 17 THEN 'ช่วงบ่าย'
+        WHEN HOUR(order_time) BETWEEN 18 AND 21 THEN 'ช่วงเย็น'
+        ELSE 'ช่วงอื่นๆ'
+    END AS ช่วงเวลา,
+    COUNT(*) AS จำนวนออเดอร์,
+    SUM(total_amount) AS ยอดขายรวม,
+    ROUND(AVG(total_amount), 2) AS ยอดขายเฉลี่ย
+FROM orders
+WHERE {{WHERE_CLAUSE}}
+GROUP BY HOUR(order_time)
+ORDER BY ชั่วโมง;`,
+        defaultWhere: 'order_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)',
+        filterFields: ['startDate', 'endDate']
+    },
+
+    order_patterns: {
+        base: `-- รูปแบบการสั่งซื้อ: วิเคราะห์ขนาดออเดอร์และพฤติกรรมลูกค้า
+SELECT
+    CASE
+        WHEN total_amount < 100 THEN 'น้อยกว่า 100 บาท'
+        WHEN total_amount < 200 THEN '100-199 บาท'
+        WHEN total_amount < 500 THEN '200-499 บาท'
+        WHEN total_amount < 1000 THEN '500-999 บาท'
+        ELSE '1000+ บาท'
+    END AS ช่วงยอดขาย,
+    COUNT(*) AS จำนวนออเดอร์,
+    ROUND(AVG(total_amount), 2) AS ยอดขายเฉลี่ย,
+    SUM(total_amount) AS ยอดขายรวม,
+    AVG(items_count.item_count) AS จำนวนสินค้าเฉลี่ย
+FROM orders o
+JOIN (SELECT order_id, COUNT(*) AS item_count FROM order_items GROUP BY order_id) items_count ON o.id = items_count.order_id
+WHERE {{WHERE_CLAUSE}}
+GROUP BY CASE WHEN total_amount < 100 THEN 'น้อยกว่า 100 บาท' WHEN total_amount < 200 THEN '100-199 บาท' WHEN total_amount < 500 THEN '200-499 บาท' WHEN total_amount < 1000 THEN '500-999 บาท' ELSE '1000+ บาท' END
+ORDER BY MIN(total_amount);`,
+        defaultWhere: 'o.order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)',
+        filterFields: ['startDate', 'endDate']
+    },
+
+    staff_ranking: {
+        base: `-- อันดับพนักงาน: ใช้ RANK() และ ROW_NUMBER() Window Functions
+SELECT
+    RANK() OVER(ORDER BY total_sales DESC) AS อันดับ,
+    staff_name AS ชื่อพนักงาน,
+    position AS ตำแหน่ง,
+    total_orders AS จำนวนออเดอร์,
+    total_sales AS ยอดขายรวม,
+    avg_order_value AS ยอดขายเฉลี่ยต่อออเดอร์,
+    performance_rating AS ระดับผลงาน
+FROM (
+    SELECT
+        s.name AS staff_name,
+        s.position,
+        COUNT(o.id) AS total_orders,
+        COALESCE(SUM(o.total_amount), 0) AS total_sales,
+        ROUND(COALESCE(AVG(o.total_amount), 0), 2) AS avg_order_value,
+        CASE
+            WHEN COALESCE(SUM(o.total_amount), 0) >= 15000 THEN 'ดีเยี่ยม'
+            WHEN COALESCE(SUM(o.total_amount), 0) >= 10000 THEN 'ดี'
+            WHEN COALESCE(SUM(o.total_amount), 0) >= 5000 THEN 'ปานกลาง'
+            ELSE 'ต้องพัฒนา'
+        END AS performance_rating
+    FROM staff s
+    LEFT JOIN orders o ON s.id = o.staff_id AND {{WHERE_CLAUSE}}
+    WHERE s.is_active = 1
+    GROUP BY s.id, s.name, s.position
+) staff_stats
+ORDER BY total_sales DESC;`,
+        defaultWhere: 'o.order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)',
+        filterFields: ['startDate', 'endDate']
+    },
+
+    order_size_analysis: {
+        base: `-- วิเคราะห์ขนาดออเดอร์: การจัดกลุ่มตามจำนวนสินค้าและยอดขาย
+SELECT
+    order_size_category AS ประเภทขนาดออเดอร์,
+    COUNT(*) AS จำนวนออเดอร์,
+    ROUND(AVG(total_items), 1) AS จำนวนสินค้าเฉลี่ย,
+    ROUND(AVG(total_amount), 2) AS ยอดขายเฉลี่ย,
+    SUM(total_amount) AS ยอดขายรวม,
+    MIN(total_amount) AS ยอดขายต่ำสุด,
+    MAX(total_amount) AS ยอดขายสูงสุด
+FROM (
+    SELECT o.id, o.total_amount, SUM(oi.quantity) AS total_items,
+        CASE
+            WHEN SUM(oi.quantity) = 1 THEN 'ออเดอร์เดี่ยว (1 ชิ้น)'
+            WHEN SUM(oi.quantity) <= 3 THEN 'ออเดอร์เล็ก (2-3 ชิ้น)'
+            WHEN SUM(oi.quantity) <= 5 THEN 'ออเดอร์ปานกลาง (4-5 ชิ้น)'
+            WHEN SUM(oi.quantity) <= 10 THEN 'ออเดอร์ใหญ่ (6-10 ชิ้น)'
+            ELSE 'ออเดอร์รายใหญ่ (10+ ชิ้น)'
+        END AS order_size_category
+    FROM orders o
+    JOIN order_items oi ON o.id = oi.order_id
+    WHERE {{WHERE_CLAUSE}}
+    GROUP BY o.id, o.total_amount
+) order_analysis
+GROUP BY order_size_category
+ORDER BY CASE order_size_category
+    WHEN 'ออเดอร์เดี่ยว (1 ชิ้น)' THEN 1
+    WHEN 'ออเดอร์เล็ก (2-3 ชิ้น)' THEN 2
+    WHEN 'ออเดอร์ปานกลาง (4-5 ชิ้น)' THEN 3
+    WHEN 'ออเดอร์ใหญ่ (6-10 ชิ้น)' THEN 4
+    ELSE 5
+END;`,
+        defaultWhere: 'o.order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)',
+        filterFields: ['startDate', 'endDate']
+    }
+};
+
+/**
+ * Smart WHERE Clause Builder
+ * Builds dynamic WHERE clauses based on filter values from the DOM
+ *
+ * @param {Object} filters - Filter object with keys: startDate, endDate, category, staff, etc.
+ * @param {string} reportType - The type of report to build WHERE clause for
+ * @returns {string} - Complete WHERE clause
+ */
+function buildWhereClause(filters, reportType) {
+    const conditions = [];
+
+    // Determine the table alias for order_date based on report type
+    const dateColumn = getDateColumnForReport(reportType);
+
+    // Date range filters
+    if (filters.startDate && filters.endDate) {
+        conditions.push(`${dateColumn} BETWEEN '${filters.startDate}' AND '${filters.endDate}'`);
+    } else if (filters.startDate) {
+        conditions.push(`${dateColumn} >= '${filters.startDate}'`);
+    } else if (filters.endDate) {
+        conditions.push(`${dateColumn} <= '${filters.endDate}'`);
+    }
+
+    // Category filter (for product reports)
+    if (filters.category && filters.category !== '') {
+        conditions.push(`c.name = '${escapeSQL(filters.category)}'`);
+    }
+
+    // Staff filter
+    if (filters.staff && filters.staff !== '') {
+        conditions.push(`s.name = '${escapeSQL(filters.staff)}'`);
+    }
+
+    // Payment type filter
+    if (filters.paymentType && filters.paymentType !== '') {
+        conditions.push(`payment_type = '${escapeSQL(filters.paymentType)}'`);
+    }
+
+    // Min/Max price filters
+    if (filters.minPrice && filters.minPrice > 0) {
+        conditions.push(`total_amount >= ${filters.minPrice}`);
+    }
+
+    if (filters.maxPrice && filters.maxPrice > 0) {
+        conditions.push(`total_amount <= ${filters.maxPrice}`);
+    }
+
+    // If no conditions, return default WHERE clause for the report
+    if (conditions.length === 0) {
+        const template = sqlTemplates[reportType];
+        return template ? template.defaultWhere : '1=1';
+    }
+
+    return conditions.join('\n  AND ');
+}
+
+/**
+ * Get the correct date column for each report type
+ * Different reports use different table aliases
+ */
+function getDateColumnForReport(reportType) {
+    const dateColumnMap = {
+        'daily_sales': 'order_date',
+        'monthly_sales': 'order_date',
+        'top_products': 'o.order_date',
+        'customer_analysis': 'o.order_date',
+        'staff_performance': 'o.order_date',
+        'payment_analysis': 'order_date',
+        'hourly_analysis': 'order_date',
+        'product_inventory': 'o.order_date',
+        'order_patterns': 'o.order_date',
+        'staff_ranking': 'o.order_date',
+        'product_comparison': 'o.order_date',
+        'order_size_analysis': 'o.order_date',
+        'product_performance': 'o.order_date',
+        'product_trends': 'o.order_date',
+        'slow_moving_products': 'o.order_date',
+        'peak_hours': 'order_date',
+        'staff_products': 'o.order_date',
+        'staff_orders': 'o.order_date',
+        'staff_efficiency': 'o.order_date',
+        'staff_comparison': 'o.order_date'
+    };
+
+    return dateColumnMap[reportType] || 'order_date';
+}
+
+/**
+ * Simple SQL injection prevention
+ * Escapes single quotes in user input
+ */
+function escapeSQL(str) {
+    if (typeof str !== 'string') return str;
+    return str.replace(/'/g, "''");
+}
+
+/**
+ * Get current filter values from DOM
+ * Reads all filter inputs and returns them as an object
+ *
+ * @returns {Object} - Filter values
+ */
+function getCurrentFilters() {
+    return {
+        startDate: document.getElementById('startDate')?.value || '',
+        endDate: document.getElementById('endDate')?.value || '',
+        category: document.getElementById('categoryFilter')?.value || '',
+        staff: document.getElementById('staffFilter')?.value || '',
+        paymentType: document.getElementById('paymentTypeFilter')?.value || '',
+        minPrice: parseFloat(document.getElementById('minPriceFilter')?.value) || 0,
+        maxPrice: parseFloat(document.getElementById('maxPriceFilter')?.value) || 0
+    };
+}
+
+/**
+ * Update SQL Display
+ * Main function to update SQL query displays with current filter values
+ * Highlights changed WHERE clauses and adds animations
+ *
+ * @param {string} reportType - The report type to update (e.g., 'daily_sales')
+ */
+function updateSQLDisplay(reportType) {
+    // Get the SQL container element
+    const sqlContainer = document.getElementById(`${reportType.replace('_', '-')}-sql`);
+    const filterSpan = document.getElementById(`${reportType.replace('_', '-')}-filter`);
+
+    if (!sqlContainer && !filterSpan) {
+        console.log(`No SQL container found for report: ${reportType}`);
+        return;
+    }
+
+    // Get current filters
+    const filters = getCurrentFilters();
+
+    // Build new WHERE clause
+    const newWhereClause = buildWhereClause(filters, reportType);
+
+    // Update the filter span if it exists (for existing HTML structure)
+    if (filterSpan) {
+        // Store old value for comparison
+        const oldValue = filterSpan.textContent.trim();
+        const newValue = newWhereClause;
+
+        // Update the content
+        filterSpan.textContent = newValue;
+
+        // Add highlight animation if value changed
+        if (oldValue !== newValue) {
+            // Add pulse animation
+            addPulseAnimation(filterSpan);
+
+            // Add yellow highlight temporarily
+            filterSpan.style.backgroundColor = '#ffd700';
+            filterSpan.style.padding = '2px 6px';
+            filterSpan.style.borderRadius = '3px';
+            filterSpan.style.transition = 'background-color 0.5s ease';
+
+            // Remove highlight after animation
+            setTimeout(() => {
+                filterSpan.style.backgroundColor = 'transparent';
+            }, 2000);
+
+            // Show notification
+            showSQLUpdateNotification();
+        }
+    }
+
+    // Also update full SQL container if template exists
+    if (sqlTemplates[reportType] && sqlContainer) {
+        const template = sqlTemplates[reportType];
+        const fullSQL = template.base.replace('{{WHERE_CLAUSE}}', newWhereClause);
+
+        // Apply syntax highlighting
+        const highlightedSQL = applySyntaxHighlighting(fullSQL, newWhereClause);
+        sqlContainer.innerHTML = highlightedSQL;
+    }
+}
+
+/**
+ * Apply syntax highlighting to SQL query
+ * Highlights SQL keywords, functions, comments, and the WHERE clause
+ *
+ * @param {string} sql - Raw SQL query
+ * @param {string} whereClause - The WHERE clause to highlight specially
+ * @returns {string} - HTML with syntax highlighting
+ */
+function applySyntaxHighlighting(sql, whereClause) {
+    let highlighted = sql;
+
+    // Highlight comments (lines starting with --)
+    highlighted = highlighted.replace(/^(--.*$)/gm, '<span class="sql-comment">$1</span>');
+
+    // Highlight SQL keywords
+    const keywords = ['SELECT', 'FROM', 'WHERE', 'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN',
+                     'GROUP BY', 'ORDER BY', 'HAVING', 'AS', 'AND', 'OR', 'ON', 'LIMIT',
+                     'DISTINCT', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'BETWEEN', 'IN', 'IS', 'NULL',
+                     'NOT', 'DESC', 'ASC', 'OVER', 'PARTITION BY', 'INTERVAL', 'DAY'];
+
+    keywords.forEach(keyword => {
+        const regex = new RegExp(`\\b(${keyword})\\b`, 'gi');
+        highlighted = highlighted.replace(regex, '<span class="sql-keyword">$1</span>');
+    });
+
+    // Highlight SQL functions
+    const functions = ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'ROUND', 'DATE', 'YEAR', 'MONTH',
+                      'HOUR', 'COALESCE', 'NULLIF', 'CONCAT', 'RANK', 'ROW_NUMBER',
+                      'DATE_SUB', 'CURDATE', 'DATEDIFF'];
+
+    functions.forEach(func => {
+        const regex = new RegExp(`\\b(${func})\\(`, 'gi');
+        highlighted = highlighted.replace(regex, '<span class="sql-function">$1</span>(');
+    });
+
+    // Highlight the WHERE clause specially
+    if (whereClause) {
+        const escapedWhere = whereClause.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        highlighted = highlighted.replace(
+            new RegExp(escapedWhere, 'g'),
+            `<span class="date-filter-highlight">${whereClause}</span>`
+        );
+    }
+
+    return highlighted;
+}
+
+/**
+ * Add pulse animation to an element
+ * Creates a visual "pulse" effect to draw attention
+ */
+function addPulseAnimation(element) {
+    element.style.animation = 'none';
+    setTimeout(() => {
+        element.style.animation = 'pulse 1s ease-in-out';
+    }, 10);
+}
+
+/**
+ * Show SQL update notification
+ * Displays a brief "SQL Updated!" message
+ */
+function showSQLUpdateNotification() {
+    const notification = document.createElement('div');
+    notification.className = 'sql-update-notification';
+    notification.innerHTML = `
+        <i class="fas fa-sync-alt"></i> SQL Updated!
+    `;
+    notification.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        z-index: 10000;
+        font-weight: 600;
+        font-size: 14px;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    `;
+
+    document.body.appendChild(notification);
+
+    // Animate in
+    setTimeout(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+
+    // Animate out and remove
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 300);
+    }, 2000);
+}
+
+/**
+ * Update all visible SQL displays
+ * Iterates through all report types and updates their SQL displays
+ */
+function updateAllSQLDisplays() {
+    const allReportTypes = [
+        'daily_sales', 'monthly_sales', 'top_products', 'customer_analysis',
+        'staff_performance', 'payment_analysis', 'hourly_analysis',
+        'product_inventory', 'order_patterns', 'staff_ranking',
+        'product_comparison', 'order_size_analysis', 'product_performance',
+        'product_trends', 'slow_moving_products', 'peak_hours',
+        'staff_products', 'staff_orders', 'staff_efficiency', 'staff_comparison'
+    ];
+
+    allReportTypes.forEach(reportType => {
+        updateSQLDisplay(reportType);
+    });
+}
+
+/**
+ * Initialize SQL update event listeners
+ * Attaches listeners to all filter inputs to trigger SQL updates
+ */
+function initializeSQLUpdateListeners() {
+    // Date range inputs
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const predefinedRangeSelect = document.getElementById('predefinedRange');
+
+    if (startDateInput) {
+        startDateInput.addEventListener('change', () => {
+            updateSQLDisplay(currentReportType);
+            // Also refresh the report data
+            if (currentReportType) {
+                loadReport(currentReportType);
+            }
+        });
+    }
+
+    if (endDateInput) {
+        endDateInput.addEventListener('change', () => {
+            updateSQLDisplay(currentReportType);
+            // Also refresh the report data
+            if (currentReportType) {
+                loadReport(currentReportType);
+            }
+        });
+    }
+
+    if (predefinedRangeSelect) {
+        predefinedRangeSelect.addEventListener('change', () => {
+            setPredefinedRange(); // This updates the date inputs
+            setTimeout(() => {
+                updateSQLDisplay(currentReportType);
+                // Also refresh the report data
+                if (currentReportType) {
+                    loadReport(currentReportType);
+                }
+            }, 100);
+        });
+    }
+
+    // Category filter (if exists)
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', () => {
+            updateSQLDisplay(currentReportType);
+            if (currentReportType) {
+                loadReport(currentReportType);
+            }
+        });
+    }
+
+    // Staff filter (if exists)
+    const staffFilter = document.getElementById('staffFilter');
+    if (staffFilter) {
+        staffFilter.addEventListener('change', () => {
+            updateSQLDisplay(currentReportType);
+            if (currentReportType) {
+                loadReport(currentReportType);
+            }
+        });
+    }
+
+    // Payment type filter (if exists)
+    const paymentTypeFilter = document.getElementById('paymentTypeFilter');
+    if (paymentTypeFilter) {
+        paymentTypeFilter.addEventListener('change', () => {
+            updateSQLDisplay(currentReportType);
+            if (currentReportType) {
+                loadReport(currentReportType);
+            }
+        });
+    }
+
+    console.log('SQL update listeners initialized');
+}
+
+// Add CSS animations for pulse effect
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.05);
+            opacity: 0.8;
+        }
+    }
+
+    .date-filter-highlight {
+        transition: all 0.3s ease;
+    }
+
+    .sql-update-notification {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sql-update-notification i {
+        animation: spin 1s linear;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+`;
+document.head.appendChild(style);

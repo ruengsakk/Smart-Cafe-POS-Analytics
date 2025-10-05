@@ -7,10 +7,38 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #f8f9fa;
-            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            font-family: 'Kanit', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Add overlay pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.03) 35px, rgba(255,255,255,.03) 70px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container-fluid {
+            position: relative;
+            z-index: 1;
         }
         .navbar {
             background: linear-gradient(135deg, #8B4513, #D2691E);
@@ -19,41 +47,245 @@
         .card {
             border: none;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.5s ease;
         }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 3px solid #dee2e6;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+            font-weight: 600;
+        }
+
+        .card-header h4, .card-header h5, .card-header h6 {
+            margin: 0;
+            color: #2d3748;
+        }
+        /* SQL Code Box Styling */
+        .sql-code-container {
+            position: relative;
+            margin: 15px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .sql-code-container:hover {
+            box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+        }
+
+        .sql-code-header {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #4299e1;
+        }
+
+        .sql-code-header h6 {
+            color: #fff;
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sql-code-header h6 i {
+            color: #4299e1;
+        }
+
+        .sql-code-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-copy-sql {
+            background: rgba(66, 153, 225, 0.2);
+            border: 1px solid #4299e1;
+            color: #4299e1;
+            padding: 5px 15px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .btn-copy-sql:hover {
+            background: #4299e1;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-copy-sql.copied {
+            background: #48bb78;
+            border-color: #48bb78;
+            color: white;
+        }
+
+        .btn-toggle-sql {
+            background: rgba(237, 137, 54, 0.2);
+            border: 1px solid #ed8936;
+            color: #ed8936;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-toggle-sql:hover {
+            background: #ed8936;
+            color: white;
+        }
+
         .sql-code {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 10px 0;
-            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            border: none;
+            border-radius: 0;
+            padding: 20px;
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 0.9em;
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
+            color: #d4d4d4;
+            line-height: 1.6;
+            position: relative;
+            counter-reset: line;
         }
+
+        .sql-code::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        .sql-code::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+
+        .sql-code::-webkit-scrollbar-thumb {
+            background: #4299e1;
+            border-radius: 5px;
+        }
+
+        .sql-code::-webkit-scrollbar-thumb:hover {
+            background: #3182ce;
+        }
+
+        /* Line numbers */
+        .sql-code-with-lines {
+            display: table;
+            width: 100%;
+        }
+
+        .sql-code-with-lines > div {
+            display: table-row;
+        }
+
+        .sql-code-with-lines > div::before {
+            content: counter(line);
+            counter-increment: line;
+            display: table-cell;
+            text-align: right;
+            padding-right: 15px;
+            padding-left: 5px;
+            color: #6b7280;
+            border-right: 2px solid #374151;
+            margin-right: 15px;
+            user-select: none;
+            width: 40px;
+            font-size: 0.85em;
+        }
+
         .sql-dynamic {
-            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
-            border: 2px solid #2196f3;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            border: 2px solid #4299e1;
+            padding: 20px;
+            border-radius: 0 0 12px 12px;
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 0.9em;
             white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+            color: #d4d4d4;
+            line-height: 1.7;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
         }
+
+        .sql-dynamic::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .sql-dynamic::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+
+        .sql-dynamic::-webkit-scrollbar-thumb {
+            background: #4299e1;
+            border-radius: 5px;
+        }
+
         .sql-keyword {
-            color: #1976d2;
+            color: #569cd6;
             font-weight: bold;
+            text-shadow: 0 0 5px rgba(86, 156, 214, 0.3);
         }
+
         .sql-function {
-            color: #7b1fa2;
+            color: #c586c0;
             font-weight: bold;
+            text-shadow: 0 0 5px rgba(197, 134, 192, 0.3);
         }
+
         .sql-comment {
-            color: #4caf50;
+            color: #6a9955;
             font-style: italic;
+        }
+
+        .sql-string {
+            color: #ce9178;
+        }
+
+        .sql-number {
+            color: #b5cea8;
+        }
+
+        .sql-collapsed {
+            display: none;
         }
         .date-filter-highlight {
             background-color: #fff3e0;
@@ -76,16 +308,117 @@
             background: linear-gradient(135deg, #8B4513, #D2691E);
             border: none;
             color: white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
+            position: relative;
+            overflow: hidden;
         }
+
+        .btn-coffee::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-coffee:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
         .btn-coffee:hover {
             background: linear-gradient(135deg, #D2691E, #8B4513);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
+        }
+
+        .btn-coffee:active {
+            transform: translateY(0);
+        }
+
+        .btn-coffee i {
+            margin-right: 8px;
+        }
+
+        /* Loading State */
+        .btn-loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         .highlight-sql {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 10px;
-            margin: 10px 0;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 5px solid #f59e0b;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 15px 0;
+            box-shadow: 0 3px 10px rgba(245, 158, 11, 0.2);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .highlight-sql strong {
+            color: #92400e;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .highlight-sql strong::before {
+            content: '🎯';
+            font-size: 1.2rem;
+        }
+
+        /* Educational Badge */
+        .learning-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 3px 10px rgba(245, 158, 11, 0.2);
+            }
+            50% {
+                box-shadow: 0 5px 20px rgba(245, 158, 11, 0.3);
+            }
         }
         /* Category Headers */
         .category-section {
@@ -266,6 +599,227 @@
         .category-content:not(.collapsed) {
             max-height: 1000px;
             opacity: 1;
+        }
+
+        /* Table Improvements */
+        .table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            padding: 15px 12px;
+            border: none;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f7fafc;
+            transform: scale(1.01);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .table tbody td {
+            padding: 12px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        /* Navbar improvements */
+        .navbar {
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            padding: 15px 0;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.4rem;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-link {
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+            border-radius: 8px;
+            padding: 8px 16px !important;
+        }
+
+        .navbar .nav-link:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .navbar .nav-link.active {
+            background: rgba(255,255,255,0.3);
+            font-weight: 600;
+        }
+
+        /* Form controls */
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            transition: all 0.3s ease;
+            font-family: 'Kanit', sans-serif;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+
+            .card {
+                margin-bottom: 15px;
+            }
+
+            .card-header h4, .card-header h5 {
+                font-size: 1.2rem;
+            }
+
+            .sql-code-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .sql-code-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .btn-copy-sql, .btn-toggle-sql {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .sql-dynamic {
+                font-size: 0.8em;
+                padding: 15px;
+            }
+
+            .highlight-sql {
+                padding: 12px 15px;
+            }
+
+            .category-header h6 {
+                font-size: 1rem;
+            }
+
+            .nav-pills .nav-link {
+                font-size: 0.85rem;
+                padding: 8px 12px;
+            }
+
+            .table {
+                font-size: 0.85rem;
+            }
+
+            .table thead th {
+                font-size: 0.75rem;
+                padding: 10px 8px;
+            }
+
+            .table tbody td {
+                padding: 8px;
+            }
+
+            .btn-coffee {
+                width: 100%;
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+
+            .sql-code-header h6 {
+                font-size: 0.85rem;
+            }
+
+            .btn-copy-sql, .btn-toggle-sql {
+                font-size: 0.75rem;
+                padding: 4px 10px;
+            }
+        }
+
+        /* Loading overlay */
+        .report-loading {
+            position: relative;
+        }
+
+        .report-loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        /* Scroll to top button */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.4);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1000;
+        }
+
+        .scroll-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(139, 69, 19, 0.5);
         }
     </style>
 </head>
@@ -479,7 +1033,7 @@
                 <div class="tab-content">
 
                     <!-- Daily Sales Report -->
-                    <div class="tab-pane fade show active" id="daily-sales">
+                    <div class="tab-pane fade" id="daily-sales">
                         <div class="card">
                             <div class="card-header">
                                 <h4><i class="fas fa-chart-line"></i> รายงานยอดขายรายวัน</h4>
@@ -489,8 +1043,19 @@
                                     <strong>เป้าหมายการเรียนรู้:</strong> การใช้ GROUP BY, DATE functions, และ Aggregate functions
                                 </div>
 
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="daily-sales-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('daily-sales-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('daily-sales-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="daily-sales-sql">
 <span class="sql-comment">-- รายงานยอดขายรายวัน: แสดงสถิติการขายในแต่ละวัน</span>
 <span class="sql-keyword">SELECT</span>
     <span class="sql-function">DATE</span>(order_date) <span class="sql-keyword">AS</span> วันที่,
@@ -503,9 +1068,10 @@
 <span class="sql-keyword">WHERE</span> <span class="date-filter-highlight" id="daily-sales-filter">order_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)</span>
 <span class="sql-keyword">GROUP BY</span> <span class="sql-function">DATE</span>(order_date)
 <span class="sql-keyword">ORDER BY</span> order_date <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
 
-                                <button class="btn btn-coffee" onclick="loadReport('daily_sales')">
+                                <button class="btn btn-coffee mt-3" onclick="loadReport('daily_sales')">
                                     <i class="fas fa-play"></i> รันคำสั่ง SQL
                                 </button>
 
@@ -525,8 +1091,19 @@
                                     <strong>เป้าหมายการเรียนรู้:</strong> การใช้ DATE_FORMAT, YEAR(), MONTH() functions
                                 </div>
 
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="monthly-sales-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('monthly-sales-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('monthly-sales-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="monthly-sales-sql">
 <span class="sql-comment">-- รายงานยอดขายรายเดือน: สรุปข้อมูลการขายในแต่ละเดือน</span>
 <span class="sql-keyword">SELECT</span>
     <span class="sql-function">YEAR</span>(order_date) <span class="sql-keyword">AS</span> ปี,
@@ -539,6 +1116,7 @@
 <span class="sql-keyword">WHERE</span> <span class="date-filter-highlight" id="monthly-sales-filter">1=1</span>
 <span class="sql-keyword">GROUP BY</span> <span class="sql-function">YEAR</span>(order_date), <span class="sql-function">MONTH</span>(order_date)
 <span class="sql-keyword">ORDER BY</span> ปี <span class="sql-keyword">DESC</span>, เดือน <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
 
                                 <button class="btn btn-coffee" onclick="loadReport('monthly_sales')">
@@ -551,7 +1129,7 @@
                     </div>
 
                     <!-- Top Products Report -->
-                    <div class="tab-pane fade" id="top-products">
+                    <div class="tab-pane fade show active" id="top-products">
                         <div class="card">
                             <div class="card-header">
                                 <h4><i class="fas fa-star"></i> รายงานสินค้าขายดี</h4>
@@ -561,8 +1139,19 @@
                                     <strong>เป้าหมายการเรียนรู้:</strong> การใช้ JOIN, SUM(), COUNT() และ ORDER BY
                                 </div>
 
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="top-products-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('top-products-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('top-products-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="top-products-sql">
 <span class="sql-comment">-- รายงานสินค้าขายดี: JOIN ตาราง order_items, menus, categories และ orders</span>
 <span class="sql-keyword">SELECT</span>
     m.name <span class="sql-keyword">AS</span> ชื่อสินค้า,
@@ -579,6 +1168,7 @@
 <span class="sql-keyword">GROUP BY</span> m.id, m.name, c.name
 <span class="sql-keyword">ORDER BY</span> จำนวนที่ขาย <span class="sql-keyword">DESC</span>
 <span class="sql-keyword">LIMIT</span> 10;
+                                    </div>
                                 </div>
 
                                 <button class="btn btn-coffee" onclick="loadReport('top_products')">
@@ -601,8 +1191,19 @@
                                     <strong>เป้าหมายการเรียนรู้:</strong> การใช้ LEFT JOIN, COALESCE, และ CASE WHEN
                                 </div>
 
-                                <h6>SQL Query: <small class="text-muted">(ข้อมูลสะสมทั้งหมด - ไม่ขึ้นกับช่วงเวลา)</small></h6>
-                                <div class="sql-dynamic" id="customer-analysis-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(ข้อมูลสะสมทั้งหมด - ไม่ขึ้นกับช่วงเวลา)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('customer-analysis-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('customer-analysis-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="customer-analysis-sql">
 <span class="sql-comment">-- วิเคราะห์ลูกค้า: ใช้ LEFT JOIN กับ Subquery และ CASE WHEN</span>
 <span class="sql-keyword">SELECT</span>
     c.name <span class="sql-keyword">AS</span> ชื่อลูกค้า,
@@ -628,6 +1229,7 @@
 ) recent_orders <span class="sql-keyword">ON</span> c.id = recent_orders.customer_id
 <span class="sql-keyword">WHERE</span> c.is_active = 1
 <span class="sql-keyword">ORDER BY</span> c.total_spent <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
 
                                 <button class="btn btn-coffee" onclick="loadReport('customer_analysis')">
@@ -650,8 +1252,19 @@
                                     <strong>เป้าหมายการเรียนรู้:</strong> การใช้ INNER JOIN และการวิเคราะห์ผลงาน
                                 </div>
 
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="staff-performance-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('staff-performance-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('staff-performance-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="staff-performance-sql">
 <span class="sql-comment">-- ผลงานพนักงาน: ใช้ INNER JOIN เพื่อหาพนักงานที่มีออเดอร์เท่านั้น</span>
 <span class="sql-keyword">SELECT</span>
     s.name <span class="sql-keyword">AS</span> ชื่อพนักงาน,
@@ -667,6 +1280,7 @@
 <span class="sql-keyword">WHERE</span> <span class="date-filter-highlight" id="staff-performance-filter">o.order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)</span>
 <span class="sql-keyword">GROUP BY</span> s.id, s.name, s.position
 <span class="sql-keyword">ORDER BY</span> ยอดขายรวม <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
 
                                 <button class="btn btn-coffee" onclick="loadReport('staff_performance')">
@@ -689,8 +1303,19 @@
                                     <strong>เป้าหมายการเรียนรู้:</strong> การใช้ GROUP BY กับ ENUM และ Percentage calculation
                                 </div>
 
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="payment-analysis-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('payment-analysis-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('payment-analysis-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="payment-analysis-sql">
 <span class="sql-comment">-- วิเคราะห์วิธีการชำระเงิน: การคำนวณเปอร์เซ็นต์ด้วย Subquery</span>
 <span class="sql-keyword">SELECT</span>
     <span class="sql-keyword">CASE</span>
@@ -706,6 +1331,7 @@
 <span class="sql-keyword">WHERE</span> <span class="date-filter-highlight" id="payment-analysis-filter">order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)</span>
 <span class="sql-keyword">GROUP BY</span> payment_type
 <span class="sql-keyword">ORDER BY</span> จำนวนออเดอร์ <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
 
                                 <button class="btn btn-coffee" onclick="loadReport('payment_analysis')">
@@ -728,8 +1354,19 @@
                                     <strong>เป้าหมายการเรียนรู้:</strong> การใช้ HOUR(), TIME functions และ time-based analysis
                                 </div>
 
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="hourly-analysis-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('hourly-analysis-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('hourly-analysis-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="hourly-analysis-sql">
 <span class="sql-comment">-- วิเคราะห์ตามชั่วโมง: ใช้ HOUR() function และ CASE WHEN สำหรับจัดกลุ่ม</span>
 <span class="sql-keyword">SELECT</span>
     <span class="sql-function">HOUR</span>(order_time) <span class="sql-keyword">AS</span> ชั่วโมง,
@@ -747,6 +1384,7 @@
 <span class="sql-keyword">WHERE</span> <span class="date-filter-highlight" id="hourly-analysis-filter">order_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)</span>
 <span class="sql-keyword">GROUP BY</span> <span class="sql-function">HOUR</span>(order_time)
 <span class="sql-keyword">ORDER BY</span> ชั่วโมง;
+                                    </div>
                                 </div>
 
                                 <button class="btn btn-coffee" onclick="loadReport('hourly_analysis')">
@@ -769,8 +1407,19 @@
                                     <strong>เป้าหมายการเรียนรู้:</strong> การวิเคราะห์ปริมาณการขายและสินค้าคงเหลือ
                                 </div>
 
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="product-inventory-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('product-inventory-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('product-inventory-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="product-inventory-sql">
 <span class="sql-comment">-- รายงานสต็อกสินค้า: วิเคราะห์สินค้าที่ขายดีและคงเหลือ</span>
 <span class="sql-keyword">SELECT</span>
     m.name <span class="sql-keyword">AS</span> ชื่อสินค้า,
@@ -793,6 +1442,7 @@
 <span class="sql-keyword">WHERE</span> m.is_active = 1
 <span class="sql-keyword">GROUP BY</span> m.id, m.name, c.name, m.price
 <span class="sql-keyword">ORDER BY</span> จำนวนที่ขาย <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
 
                                 <button class="btn btn-coffee" onclick="loadReport('product_inventory')">
@@ -815,8 +1465,19 @@
                                     <strong>เป้าหมายการเรียนรู้:</strong> การวิเคราะห์พฤติกรรมการสั่งซื้อของลูกค้า
                                 </div>
 
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="order-patterns-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('order-patterns-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('order-patterns-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="order-patterns-sql">
 <span class="sql-comment">-- รูปแบบการสั่งซื้อ: วิเคราะห์ขนาดออเดอร์และพฤติกรรมลูกค้า</span>
 <span class="sql-keyword">SELECT</span>
     <span class="sql-keyword">CASE</span>
@@ -847,6 +1508,7 @@
         <span class="sql-keyword">ELSE</span> '1000+ บาท'
     <span class="sql-keyword">END</span>
 <span class="sql-keyword">ORDER BY</span> <span class="sql-function">MIN</span>(total_amount);
+                                    </div>
                                 </div>
 
                                 <button class="btn btn-coffee" onclick="loadReport('order_patterns')">
@@ -869,8 +1531,19 @@
                                     <strong>เป้าหมายการเรียนรู้:</strong> การจัดอันดับและเปรียบเทียบผลงานพนักงาน
                                 </div>
 
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="staff-ranking-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('staff-ranking-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('staff-ranking-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="staff-ranking-sql">
 <span class="sql-comment">-- อันดับพนักงาน: ใช้ RANK() และ ROW_NUMBER() Window Functions</span>
 <span class="sql-keyword">SELECT</span>
     <span class="sql-function">RANK</span>() <span class="sql-keyword">OVER</span>(<span class="sql-keyword">ORDER BY</span> total_sales <span class="sql-keyword">DESC</span>) <span class="sql-keyword">AS</span> อันดับ,
@@ -906,6 +1579,7 @@
     <span class="sql-keyword">GROUP BY</span> s.id, s.name, s.position
 ) staff_stats
 <span class="sql-keyword">ORDER BY</span> total_sales <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
 
                                 <button class="btn btn-coffee" onclick="loadReport('staff_ranking')">
@@ -928,8 +1602,19 @@
                                     <strong>เป้าหมายการเรียนรู้:</strong> การเปรียบเทียบผลงานของแต่ละหมวดหมู่สินค้า
                                 </div>
 
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="product-comparison-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('product-comparison-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('product-comparison-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="product-comparison-sql">
 <span class="sql-comment">-- เปรียบเทียบสินค้า: ใช้ PIVOT-like query เพื่อเปรียบเทียบหมวดหมู่</span>
 <span class="sql-keyword">SELECT</span>
     c.name <span class="sql-keyword">AS</span> หมวดหมู่,
@@ -961,6 +1646,7 @@
     <span class="sql-keyword">AND</span> <span class="date-filter-highlight" id="product-comparison-filter">o.order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)</span>
 <span class="sql-keyword">GROUP BY</span> c.id, c.name
 <span class="sql-keyword">ORDER BY</span> ยอดขายรวม <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
 
                                 <button class="btn btn-coffee" onclick="loadReport('product_comparison')">
@@ -983,8 +1669,19 @@
                                     <strong>เป้าหมายการเรียนรู้:</strong> การวิเคราะห์ขนาดและปริมาณออเดอร์ต่างๆ
                                 </div>
 
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="order-size-analysis-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('order-size-analysis-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('order-size-analysis-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="order-size-analysis-sql">
 <span class="sql-comment">-- วิเคราะห์ขนาดออเดอร์: การจัดกลุ่มตามจำนวนสินค้าและยอดขาย</span>
 <span class="sql-keyword">SELECT</span>
     order_size_category <span class="sql-keyword">AS</span> ประเภทขนาดออเดอร์,
@@ -1024,6 +1721,7 @@
         <span class="sql-keyword">WHEN</span> 'ออเดอร์ใหญ่ (6-10 ชิ้น)' <span class="sql-keyword">THEN</span> 4
         <span class="sql-keyword">ELSE</span> 5
     <span class="sql-keyword">END</span>;
+                                    </div>
                                 </div>
 
                                 <button class="btn btn-coffee" onclick="loadReport('order_size_analysis')">
@@ -1104,8 +1802,19 @@
                                 <div class="highlight-sql">
                                     <strong>เป้าหมายการเรียนรู้:</strong> การวิเคราะห์ผลตอบแทนและประสิทธิภาพของสินค้า
                                 </div>
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="product-performance-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('product-performance-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('product-performance-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="product-performance-sql">
 <span class="sql-comment">-- ประสิทธิภาพสินค้า: วิเคราะห์อัตราการหมุนเวียนและผลตอบแทน</span>
 <span class="sql-keyword">SELECT</span>
     m.name <span class="sql-keyword">AS</span> ชื่อสินค้า,
@@ -1122,6 +1831,7 @@
 <span class="sql-keyword">WHERE</span> m.is_active = 1
 <span class="sql-keyword">GROUP BY</span> m.id, m.name, c.name, m.price
 <span class="sql-keyword">ORDER BY</span> ยอดขายรวม <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
                                 <button class="btn btn-coffee" onclick="loadReport('product_performance')">
                                     <i class="fas fa-play"></i> รันคำสั่ง SQL
@@ -1141,8 +1851,19 @@
                                 <div class="highlight-sql">
                                     <strong>เป้าหมายการเรียนรู้:</strong> การวิเคราะห์แนวโน้มการขายตามช่วงเวลา
                                 </div>
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="product-trends-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('product-trends-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('product-trends-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="product-trends-sql">
 <span class="sql-comment">-- เทรนด์สินค้า: เปรียบเทียบการขายระหว่างช่วงเวลา</span>
 <span class="sql-keyword">SELECT</span>
     m.name <span class="sql-keyword">AS</span> ชื่อสินค้า,
@@ -1163,6 +1884,7 @@
 <span class="sql-keyword">GROUP BY</span> m.id, m.name, c.name
 <span class="sql-keyword">HAVING</span> (ขาย_7วันล่าสุด + ขาย_7วันก่อน) > 0
 <span class="sql-keyword">ORDER BY</span> ขาย_7วันล่าสุด <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
                                 <button class="btn btn-coffee" onclick="loadReport('product_trends')">
                                     <i class="fas fa-play"></i> รันคำสั่ง SQL
@@ -1182,8 +1904,19 @@
                                 <div class="highlight-sql">
                                     <strong>เป้าหมายการเรียนรู้:</strong> การระบุสินค้าที่ต้องการความช่วยเหลือในการขาย
                                 </div>
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="slow-moving-products-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('slow-moving-products-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('slow-moving-products-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="slow-moving-products-sql">
 <span class="sql-comment">-- สินค้าขายช้า: สินค้าที่ขายน้อยหรือไม่มีการขายเลย</span>
 <span class="sql-keyword">SELECT</span>
     m.name <span class="sql-keyword">AS</span> ชื่อสินค้า,
@@ -1212,6 +1945,7 @@
 <span class="sql-keyword">GROUP BY</span> m.id, m.name, c.name, m.price
 <span class="sql-keyword">HAVING</span> จำนวนที่ขาย <= 5
 <span class="sql-keyword">ORDER BY</span> จำนวนที่ขาย <span class="sql-keyword">ASC</span>, m.price <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
                                 <button class="btn btn-coffee" onclick="loadReport('slow_moving_products')">
                                     <i class="fas fa-play"></i> รันคำสั่ง SQL
@@ -1231,8 +1965,19 @@
                                 <div class="highlight-sql">
                                     <strong>เป้าหมายการเรียนรู้:</strong> การวิเคราะห์รูปแบบการซื้อตามเวลา
                                 </div>
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="peak-hours-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('peak-hours-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('peak-hours-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="peak-hours-sql">
 <span class="sql-comment">-- ช่วงเวลาเร่าซื้อ: วิเคราะห์การขายตามชั่วโมงและวันในสัปดาห์</span>
 <span class="sql-keyword">SELECT</span>
     <span class="sql-function">HOUR</span>(order_time) <span class="sql-keyword">AS</span> ชั่วโมง,
@@ -1273,6 +2018,7 @@
 <span class="sql-keyword">WHERE</span> <span class="date-filter-highlight">order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)</span>
 <span class="sql-keyword">GROUP BY</span> <span class="sql-function">HOUR</span>(order_time), <span class="sql-function">DAYOFWEEK</span>(order_date)
 <span class="sql-keyword">ORDER BY</span> วัน, ชั่วโมง;
+                                    </div>
                                 </div>
                                 <button class="btn btn-coffee" onclick="loadReport('peak_hours')">
                                     <i class="fas fa-play"></i> รันคำสั่ง SQL
@@ -1292,8 +2038,19 @@
                                 <div class="highlight-sql">
                                     <strong>เป้าหมายการเรียนรู้:</strong> การวิเคราะห์ว่าพนักงานแต่ละคนขายสินค้าอะไรบ้าง
                                 </div>
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="staff-products-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('staff-products-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('staff-products-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="staff-products-sql">
 <span class="sql-comment">-- สินค้าที่พนักงานขาย: ดูว่าพนักงานแต่ละคนขายสินค้าอะไรบ้าง</span>
 <span class="sql-keyword">SELECT</span>
     s.name <span class="sql-keyword">AS</span> ชื่อพนักงาน,
@@ -1319,6 +2076,7 @@
 <span class="sql-keyword">WHERE</span> s.is_active = 1 <span class="sql-keyword">AND</span> <span class="date-filter-highlight">o.order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)</span>
 <span class="sql-keyword">GROUP BY</span> s.id, s.name, s.position, m.id, m.name, c.name
 <span class="sql-keyword">ORDER BY</span> s.name, จำนวนที่ขาย <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
                                 <button class="btn btn-coffee" onclick="loadReport('staff_products')">
                                     <i class="fas fa-play"></i> รันคำสั่ง SQL
@@ -1338,8 +2096,19 @@
                                 <div class="highlight-sql">
                                     <strong>เป้าหมายการเรียนรู้:</strong> การวิเคราะห์ออเดอร์ที่พนักงานแต่ละคนจัดการ
                                 </div>
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="staff-orders-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('staff-orders-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('staff-orders-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="staff-orders-sql">
 <span class="sql-comment">-- ออเดอร์ที่พนักงานรับผิดชอบ: วิเคราะห์ขนาดและรูปแบบออเดอร์</span>
 <span class="sql-keyword">SELECT</span>
     s.name <span class="sql-keyword">AS</span> ชื่อพนักงาน,
@@ -1368,6 +2137,7 @@
 <span class="sql-keyword">WHERE</span> s.is_active = 1 <span class="sql-keyword">AND</span> <span class="date-filter-highlight">o.order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)</span>
 <span class="sql-keyword">GROUP BY</span> s.id, s.name, s.position
 <span class="sql-keyword">ORDER BY</span> ยอดขายรวม <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
                                 <button class="btn btn-coffee" onclick="loadReport('staff_orders')">
                                     <i class="fas fa-play"></i> รันคำสั่ง SQL
@@ -1387,8 +2157,19 @@
                                 <div class="highlight-sql">
                                     <strong>เป้าหมายการเรียนรู้:</strong> การวัดประสิทธิภาพและผลิตภาพของพนักงาน
                                 </div>
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="staff-efficiency-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('staff-efficiency-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('staff-efficiency-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="staff-efficiency-sql">
 <span class="sql-comment">-- ประสิทธิภาพพนักงาน: วิเคราะห์ผลิตภาพต่อวันและต่อชั่วโมง</span>
 <span class="sql-keyword">SELECT</span>
     s.name <span class="sql-keyword">AS</span> ชื่อพนักงาน,
@@ -1412,6 +2193,7 @@
 <span class="sql-keyword">WHERE</span> s.is_active = 1 <span class="sql-keyword">AND</span> <span class="date-filter-highlight">o.order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)</span>
 <span class="sql-keyword">GROUP BY</span> s.id, s.name, s.position
 <span class="sql-keyword">ORDER BY</span> ออเดอร์ต่อวัน <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
                                 <button class="btn btn-coffee" onclick="loadReport('staff_efficiency')">
                                     <i class="fas fa-play"></i> รันคำสั่ง SQL
@@ -1431,8 +2213,19 @@
                                 <div class="highlight-sql">
                                     <strong>เป้าหมายการเรียนรู้:</strong> การเปรียบเทียบผลงานพนักงานกับค่าเฉลี่ยของทีม
                                 </div>
-                                <h6>SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
-                                <div class="sql-dynamic" id="staff-comparison-sql">
+                                <div class="sql-code-container">
+                                    <div class="sql-code-header">
+                                        <h6><i class="fas fa-code"></i> SQL Query: <small class="text-muted">(อัปเดตตามช่วงเวลาที่เลือก)</small></h6>
+                                        <div class="sql-code-actions">
+                                            <button class="btn-copy-sql" onclick="copySQLToClipboard('staff-comparison-sql', this)">
+                                                <i class="fas fa-copy"></i> คัดลอก SQL
+                                            </button>
+                                            <button class="btn-toggle-sql" onclick="toggleSQL('staff-comparison-sql', this)">
+                                                <i class="fas fa-chevron-up"></i> <span>ซ่อน</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="sql-dynamic" id="staff-comparison-sql">
 <span class="sql-comment">-- เปรียบเทียบพนักงาน: เปรียบเทียบกับค่าเฉลี่ยของทีม</span>
 <span class="sql-keyword">WITH</span> staff_performance <span class="sql-keyword">AS</span> (
     <span class="sql-keyword">SELECT</span>
@@ -1474,6 +2267,7 @@ team_averages <span class="sql-keyword">AS</span> (
 <span class="sql-keyword">FROM</span> staff_performance sp
 <span class="sql-keyword">CROSS JOIN</span> team_averages ta
 <span class="sql-keyword">ORDER BY</span> sp.total_sales <span class="sql-keyword">DESC</span>;
+                                    </div>
                                 </div>
                                 <button class="btn btn-coffee" onclick="loadReport('staff_comparison')">
                                     <i class="fas fa-play"></i> รันคำสั่ง SQL
@@ -1486,6 +2280,11 @@ team_averages <span class="sql-keyword">AS</span> (
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">
+        <i class="fas fa-chevron-up"></i>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -1584,6 +2383,89 @@ team_averages <span class="sql-keyword">AS</span> (
                 } else {
                     link.style.display = query ? 'none' : 'block';
                 }
+            });
+        }
+
+        // Copy SQL to clipboard
+        function copySQLToClipboard(elementId, buttonElement) {
+            const sqlElement = document.getElementById(elementId);
+            const sqlText = sqlElement.innerText;
+
+            navigator.clipboard.writeText(sqlText).then(() => {
+                // Change button appearance
+                const originalHTML = buttonElement.innerHTML;
+                buttonElement.innerHTML = '<i class="fas fa-check"></i> คัดลอกแล้ว!';
+                buttonElement.classList.add('copied');
+
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    buttonElement.innerHTML = originalHTML;
+                    buttonElement.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('ไม่สามารถคัดลอก SQL ได้');
+            });
+        }
+
+        // Toggle SQL visibility
+        function toggleSQL(elementId, buttonElement) {
+            const sqlElement = document.getElementById(elementId);
+            const icon = buttonElement.querySelector('i');
+
+            if (sqlElement.classList.contains('sql-collapsed')) {
+                sqlElement.classList.remove('sql-collapsed');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+                buttonElement.querySelector('span').textContent = 'ซ่อน';
+            } else {
+                sqlElement.classList.add('sql-collapsed');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+                buttonElement.querySelector('span').textContent = 'แสดง';
+            }
+        }
+
+        // Add smooth scroll animation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+
+            // Scroll to top button functionality
+            window.addEventListener('scroll', function() {
+                const scrollButton = document.getElementById('scrollToTop');
+                if (window.pageYOffset > 300) {
+                    scrollButton.classList.add('visible');
+                } else {
+                    scrollButton.classList.remove('visible');
+                }
+            });
+        });
+
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
             });
         }
     </script>
