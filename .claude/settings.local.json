@@ -10,7 +10,8 @@
       "Bash(curl -s \"http://localhost/coffeeshop_analytics/test_connection.php\")",
       "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=product_inventory\")",
       "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=daily_sales\")",
-      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=staff_products\")"
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=staff_products\")",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []
