@@ -45,15 +45,17 @@ class POSSystem {
             menuContainer.innerHTML = '';
 
             menus.forEach(menu => {
+                const icon = this.getMenuIcon(menu.name, menu.category_name);
                 menuContainer.innerHTML += `
                     <div class="col-md-6 col-lg-4 mb-4">
                         <div class="card menu-card" onclick="pos.addToCart(${menu.id}, '${menu.name}', ${menu.price})">
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title">${menu.name}</h5>
-                                <p class="card-text flex-grow-1">รหัสสินค้า: ${menu.id}</p>
-                                <div class="menu-price">฿${parseFloat(menu.price).toFixed(2)}</div>
-                                <button class="btn btn-coffee btn-sm mt-2">
-                                    <i class="fas fa-plus"></i> เพิ่มในรายการ
+                            <div class="card-body d-flex flex-column align-items-center text-center">
+                                <i class="${icon} menu-icon"></i>
+                                <h5 class="card-title mb-2">${menu.name}</h5>
+                                <p class="card-text text-muted mb-3">${menu.category_name || 'เมนูพิเศษ'}</p>
+                                <div class="menu-price mb-3">฿${parseFloat(menu.price).toFixed(2)}</div>
+                                <button class="btn btn-coffee btn-sm mt-auto w-100">
+                                    <i class="fas fa-cart-plus"></i> เพิ่มในตะกร้า
                                 </button>
                             </div>
                         </div>
@@ -414,6 +416,40 @@ class POSSystem {
                 this.clearCart();
             }
         });
+    }
+
+    // Get menu icon based on name and category
+    getMenuIcon(name, category) {
+        name = name.toLowerCase();
+        category = category ? category.toLowerCase() : '';
+
+        // Coffee drinks
+        if (name.includes('americano')) return 'fas fa-mug-hot';
+        if (name.includes('cappuccino')) return 'fas fa-coffee';
+        if (name.includes('latte')) return 'fas fa-coffee';
+        if (name.includes('espresso')) return 'fas fa-mug-hot';
+        if (name.includes('mocha')) return 'fas fa-mug-saucer';
+
+        // Cold drinks
+        if (name.includes('ice') || name.includes('iced') || name.includes('frappe')) return 'fas fa-glass-water';
+        if (name.includes('tea') || name.includes('ชา')) return 'fas fa-leaf';
+        if (name.includes('chocolate')) return 'fas fa-seedling';
+        if (name.includes('น้ำ')) return 'fas fa-glass-water-droplet';
+
+        // Food
+        if (name.includes('sandwich')) return 'fas fa-burger';
+        if (name.includes('croissant') || name.includes('bread')) return 'fas fa-bread-slice';
+        if (name.includes('cake') || name.includes('เค้ก')) return 'fas fa-cake-candles';
+        if (name.includes('brownie') || name.includes('cookie')) return 'fas fa-cookie';
+
+        // Category-based fallback
+        if (category.includes('ร้อน')) return 'fas fa-mug-hot';
+        if (category.includes('เย็น')) return 'fas fa-glass-water';
+        if (category.includes('อาหาร')) return 'fas fa-utensils';
+        if (category.includes('หวาน')) return 'fas fa-ice-cream';
+
+        // Default
+        return 'fas fa-coffee';
     }
 }
 

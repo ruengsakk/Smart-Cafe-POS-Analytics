@@ -7,70 +7,217 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+
         body {
-            background-color: #f8f9fa;
-            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Kanit', sans-serif;
+            min-height: 100vh;
         }
+
         .navbar {
-            background: linear-gradient(135deg, #8B4513, #D2691E);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #6B4423, #8B5A3C, #A0826D);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 1rem 0;
         }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
         .card {
             border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            overflow: hidden;
         }
+
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
         }
+
+        /* Menu Card Styles */
         .menu-card {
             cursor: pointer;
-            height: 280px;
+            height: 320px;
+            background: white;
+            position: relative;
+            overflow: hidden;
         }
+
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(139,69,19,0.1), rgba(210,105,30,0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .menu-card:hover::before {
+            opacity: 1;
+        }
+
         .menu-card:hover {
-            border: 2px solid #8B4513;
+            border: 3px solid #8B4513;
+            transform: scale(1.03);
         }
+
+        .menu-icon {
+            font-size: 4rem;
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 20px 0;
+        }
+
         .cart-summary {
             position: sticky;
             top: 20px;
+            background: white;
         }
+
         .order-item {
-            border-bottom: 1px solid #eee;
-            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 15px 0;
+            transition: background 0.3s ease;
         }
+
+        .order-item:hover {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding-left: 10px;
+            margin-left: -10px;
+        }
+
         .btn-coffee {
             background: linear-gradient(135deg, #8B4513, #D2691E);
             border: none;
             color: white;
-            border-radius: 10px;
+            border-radius: 12px;
+            font-weight: 500;
+            padding: 12px 24px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139,69,19,0.3);
         }
+
         .btn-coffee:hover {
             background: linear-gradient(135deg, #D2691E, #8B4513);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139,69,19,0.4);
         }
+
+        .btn-coffee:active {
+            transform: translateY(0);
+        }
+
         .category-btn {
-            border-radius: 25px;
+            border-radius: 30px;
             margin: 5px;
             transition: all 0.3s ease;
+            font-weight: 500;
+            padding: 10px 20px;
+            border: 2px solid transparent;
         }
+
         .category-btn.active {
-            background: #8B4513;
-            color: white;
-        }
-        .menu-price {
-            font-weight: bold;
-            color: #8B4513;
-            font-size: 1.2em;
-        }
-        .total-display {
             background: linear-gradient(135deg, #8B4513, #D2691E);
             color: white;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
+            border-color: #8B4513;
+            box-shadow: 0 4px 15px rgba(139,69,19,0.3);
+        }
+
+        .category-btn:hover:not(.active) {
+            border-color: #8B4513;
+            background: #fff;
+            transform: translateY(-2px);
+        }
+
+        .menu-price {
+            font-weight: 700;
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             font-size: 1.5em;
-            font-weight: bold;
+        }
+
+        .total-display {
+            background: linear-gradient(135deg, #6B4423, #8B5A3C);
+            color: white;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            font-size: 2em;
+            font-weight: 700;
+            box-shadow: 0 8px 30px rgba(107,68,35,0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .empty-cart {
+            opacity: 0.6;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-cart i {
+            font-size: 3rem;
+            color: #ccc;
+        }
+
+        /* Quantity Controls */
+        .btn-group .btn {
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-group .btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Category Filter Card */
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 3px solid #8B4513;
+            font-weight: 600;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu-card {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .menu-card {
+                height: 250px;
+            }
+            .menu-icon {
+                font-size: 2.5rem;
+            }
         }
     </style>
 </head>
