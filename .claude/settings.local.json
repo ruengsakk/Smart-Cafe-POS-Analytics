@@ -11,7 +11,12 @@
       "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=product_inventory\")",
       "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=daily_sales\")",
       "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=staff_products\")",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(dir)",
+      "Bash(mysql:*)",
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/reports_products.php\")",
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=top_products&start_date=2025-01-01&end_date=2025-12-31\")",
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=product_comparison&start_date=2025-10-19&end_date=2025-10-26\")"
     ],
     "deny": [],
     "ask": []

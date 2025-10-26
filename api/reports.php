@@ -264,28 +264,13 @@ try {
                     staff_name as 'ชื่อพนักงาน',
                     position as 'ตำแหน่ง',
                     total_orders as 'จำนวนออเดอร์',
-                    total_sales as 'ยอดขายรวม',
-                    avg_order_value as 'ยอดขายเฉลี่ยต่อออเดอร์',
-                    sales_vs_target as 'เปรียบเทียบกับเป้าหมาย',
-                    performance_rating as 'ระดับผลงาน',
-                    'วันที่เริ่มงาน',
-                    'วันล่าสุดขาย'
+                    total_sales as 'ยอดขายรวม'
                 FROM (
                     SELECT
                         s.name as staff_name,
                         s.position,
                         COUNT(o.id) as total_orders,
-                        COALESCE(SUM(o.total_amount), 0) as total_sales,
-                        ROUND(COALESCE(AVG(o.total_amount), 0), 2) as avg_order_value,
-                        CONCAT(ROUND((COALESCE(SUM(o.total_amount), 0) / 10000) * 100, 1), '%') as sales_vs_target,
-                        CASE
-                            WHEN COALESCE(SUM(o.total_amount), 0) >= 15000 THEN 'ดีเยี่ยม 🏆'
-                            WHEN COALESCE(SUM(o.total_amount), 0) >= 10000 THEN 'ดี 🌟'
-                            WHEN COALESCE(SUM(o.total_amount), 0) >= 5000 THEN 'ปานกลาง 💪'
-                            ELSE 'ต้องพัฒนา 🚀'
-                        END as performance_rating,
-                        DATE(MIN(o.order_date)) as 'วันที่เริ่มงาน',
-                        DATE(MAX(o.order_date)) as 'วันล่าสุดขาย'
+                        COALESCE(SUM(o.total_amount), 0) as total_sales
                     FROM staff s
                     LEFT JOIN orders o ON s.id = o.staff_id $dateFilter
                     WHERE s.is_active = 1
@@ -302,25 +287,7 @@ try {
                     c.name as 'หมวดหมู่',
                     COUNT(DISTINCT m.id) as 'จำนวนสินค้า',
                     COALESCE(SUM(oi.quantity), 0) as 'จำนวนที่ขายรวม',
-                    COALESCE(SUM(oi.subtotal), 0) as 'ยอดขายรวม',
-                    ROUND(COALESCE(AVG(oi.unit_price), 0), 2) as 'ราคาเฉลี่ย',
-                    ROUND(
-                        (COALESCE(SUM(oi.subtotal), 0) * 100.0) /
-                        NULLIF((SELECT SUM(subtotal) FROM order_items oi2
-                                JOIN orders o2 ON oi2.order_id = o2.id
-                                WHERE 1=1 $dateFilter), 0), 2
-                    ) as 'สัดส่วนยอดขาย',
-                    COUNT(DISTINCT o.id) as 'จำนวนออเดอร์',
-                    ROUND(
-                        COALESCE(SUM(oi.quantity), 0) /
-                        NULLIF(COUNT(DISTINCT o.id), 0), 2
-                    ) as 'จำนวนต่อออเดอร์',
-                    CASE
-                        WHEN COALESCE(SUM(oi.quantity), 0) = 0 THEN 'ไม่มีการขาย'
-                        WHEN COALESCE(SUM(oi.subtotal), 0) >= 5000 THEN 'หมวดหมู่ยอดนิยม 🔥'
-                        WHEN COALESCE(SUM(oi.subtotal), 0) >= 2000 THEN 'หมวดหมู่ขายดี ⭐'
-                        ELSE 'หมวดหมู่ขายช้า 📊'
-                    END as 'สถานะหมวดหมู่'
+                    COALESCE(SUM(oi.subtotal), 0) as 'ยอดขายรวม'
                 FROM categories c
                 LEFT JOIN menus m ON c.id = m.category_id AND m.is_active = 1
                 LEFT JOIN order_items oi ON m.id = oi.menu_id
@@ -328,7 +295,7 @@ try {
                 GROUP BY c.id, c.name
                 ORDER BY 'ยอดขายรวม' DESC
             ";
-            $finalParams = array_merge($dateParams, $dateParams);
+            $finalParams = $dateParams;
             break;
 
         case 'order_size_analysis':
