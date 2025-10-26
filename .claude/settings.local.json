@@ -18,7 +18,15 @@
       "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=top_products&start_date=2025-01-01&end_date=2025-12-31\")",
       "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=product_comparison&start_date=2025-10-19&end_date=2025-10-26\")",
       "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=best_day\")",
-      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=product_summary\")"
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=product_summary\")",
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=monthly_menu_count\")",
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=staff_customers\")",
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=product_summary&menu_name=กาแฟ\")",
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=product_summary&month=10\")",
+      "Bash(curl -s \"http://localhost/coffeeshop_analytics/api/reports.php?type=product_summary&menu_name=Latte\")",
+      "Bash(curl:*)",
+      "Bash(dir:*)",
+      "Read(//c/xampp/apache/logs/**)"
     ],
     "deny": [],
     "ask": []

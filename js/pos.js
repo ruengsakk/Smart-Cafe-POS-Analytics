@@ -9,6 +9,7 @@ class POSSystem {
     init() {
         this.loadCategories();
         this.loadMenuItems();
+        this.loadStaff();
         this.loadCustomers();
         this.bindEvents();
     }
@@ -64,6 +65,34 @@ class POSSystem {
             });
         } catch (error) {
             console.error('Error loading menu items:', error);
+        }
+    }
+
+    // Load staff from database
+    async loadStaff() {
+        try {
+            const response = await fetch('api/get_staff.php');
+            const staff = await response.json();
+
+            console.log('Staff loaded:', staff);
+
+            const staffSelect = document.getElementById('staffSelect');
+            if (!staffSelect) {
+                console.error('staffSelect element not found!');
+                return;
+            }
+
+            staffSelect.innerHTML = '<option value="">เลือกพนักงาน</option>';
+
+            staff.forEach(s => {
+                staffSelect.innerHTML += `
+                    <option value="${s.id}">${s.name}</option>
+                `;
+            });
+
+            console.log('Staff select populated with', staff.length, 'staff members');
+        } catch (error) {
+            console.error('Error loading staff:', error);
         }
     }
 
@@ -194,15 +223,25 @@ class POSSystem {
     async processOrder() {
         if (this.cart.length === 0) return;
 
+        const staffId = document.getElementById('staffSelect').value;
         const customerId = document.getElementById('customerSelect').value;
         const paymentMethod = document.getElementById('paymentMethod').value;
 
+        // Validate staff selection
+        if (!staffId) {
+            this.showNotification('error', 'กรุณาเลือกพนักงาน');
+            return;
+        }
+
         const orderData = {
             items: this.cart,
+            staff_id: staffId,
             customer_id: customerId || null,
             payment_method: paymentMethod,
             total_amount: this.totalAmount
         };
+
+        console.log('Sending order data:', orderData);
 
         try {
             // Show loading indicator
@@ -219,9 +258,19 @@ class POSSystem {
                 body: JSON.stringify(orderData)
             });
 
+            console.log('Response status:', response.status);
+
             // Check if response is ok
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                // Try to get error details
+                const errorText = await response.text();
+                console.error('Server error response:', errorText);
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    throw new Error(errorJson.message || `HTTP error! status: ${response.status}`);
+                } catch (e) {
+                    throw new Error(`HTTP error! status: ${response.status} - ${errorText.substring(0, 200)}`);
+                }
             }
 
             // Check if response is JSON

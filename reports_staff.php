@@ -161,6 +161,35 @@
             </div>
         </div>
 
+        <!-- Advanced Filters -->
+        <div class="date-filter">
+            <h6 class="mb-3"><i class="fas fa-filter"></i> ตัวกรองเพิ่มเติม</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label"><i class="fas fa-user-tie"></i> ชื่อพนักงาน</label>
+                    <input type="text" class="form-control" id="filterStaffName" placeholder="พิมพ์เพื่อค้นหา... (เช่น สมชาย, นิดา)" onchange="refreshCurrentReport()">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><i class="fas fa-calendar-day"></i> เดือน</label>
+                    <select class="form-select" id="filterMonth" onchange="refreshCurrentReport()">
+                        <option value="">ทุกเดือน</option>
+                        <option value="1">มกราคม</option>
+                        <option value="2">กุมภาพันธ์</option>
+                        <option value="3">มีนาคม</option>
+                        <option value="4">เมษายน</option>
+                        <option value="5">พฤษภาคม</option>
+                        <option value="6">มิถุนายน</option>
+                        <option value="7">กรกฎาคม</option>
+                        <option value="8">สิงหาคม</option>
+                        <option value="9">กันยายน</option>
+                        <option value="10">ตุลาคม</option>
+                        <option value="11">พฤศจิกายน</option>
+                        <option value="12">ธันวาคม</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <!-- Report Tabs -->
         <div class="report-tabs">
             <ul class="nav nav-pills nav-fill" id="staffReportTabs" role="tablist">
@@ -171,12 +200,37 @@
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="staff-performance-tab" data-bs-toggle="pill" data-bs-target="#staff-performance" type="button">
-                        <i class="fas fa-user-tie"></i> ผลงานพนักงาน
+                        <i class="fas fa-chart-line"></i> ผลงานพนักงาน
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="staff-products-tab" data-bs-toggle="pill" data-bs-target="#staff-products" type="button">
+                        <i class="fas fa-box-open"></i> สินค้าที่ขาย
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="staff-orders-tab" data-bs-toggle="pill" data-bs-target="#staff-orders" type="button">
+                        <i class="fas fa-shopping-cart"></i> ออเดอร์ต่อพนักงาน
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="staff-efficiency-tab" data-bs-toggle="pill" data-bs-target="#staff-efficiency" type="button">
+                        <i class="fas fa-tachometer-alt"></i> ประสิทธิภาพ
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="staff-comparison-tab" data-bs-toggle="pill" data-bs-target="#staff-comparison" type="button">
-                        <i class="fas fa-balance-scale"></i> เปรียบเทียบพนักงาน
+                        <i class="fas fa-balance-scale"></i> เปรียบเทียบ
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="staff-customers-tab" data-bs-toggle="pill" data-bs-target="#staff-customers" type="button">
+                        <i class="fas fa-users"></i> ลูกค้าต่อพนักงาน
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="advanced-queries-tab" data-bs-toggle="pill" data-bs-target="#advanced-queries" type="button">
+                        <i class="fas fa-database"></i> รายงานขั้นสูง
                     </button>
                 </li>
             </ul>
@@ -200,10 +254,46 @@
             <div class="tab-pane fade" id="staff-performance" role="tabpanel">
                 <div class="card">
                     <div class="card-header">
-                        <h5><i class="fas fa-user-tie"></i> ผลงานพนักงาน</h5>
+                        <h5><i class="fas fa-chart-line"></i> ผลงานพนักงาน</h5>
                     </div>
                     <div class="card-body">
                         <div id="staff-performance-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Products -->
+            <div class="tab-pane fade" id="staff-products" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-box-open"></i> สินค้าที่พนักงานขาย</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="staff-products-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Orders -->
+            <div class="tab-pane fade" id="staff-orders" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-shopping-cart"></i> ออเดอร์ต่อพนักงาน</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="staff-orders-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Efficiency -->
+            <div class="tab-pane fade" id="staff-efficiency" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-tachometer-alt"></i> ประสิทธิภาพพนักงาน</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="staff-efficiency-result"></div>
                     </div>
                 </div>
             </div>
@@ -216,6 +306,30 @@
                     </div>
                     <div class="card-body">
                         <div id="staff-comparison-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Customers -->
+            <div class="tab-pane fade" id="staff-customers" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-users"></i> ลูกค้าต่อพนักงาน</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="staff-customers-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Queries -->
+            <div class="tab-pane fade" id="advanced-queries" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-database"></i> รายงานขั้นสูง</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="advanced-queries-result"></div>
                     </div>
                 </div>
             </div>
@@ -265,22 +379,34 @@
         // Auto load report when tab changes
         document.querySelectorAll('#staffReportTabs button[data-bs-toggle="pill"]').forEach(button => {
             button.addEventListener('shown.bs.tab', function(e) {
+                const targetId = e.target.getAttribute('data-bs-target');
+                const reportType = e.target.id.replace('-tab', '');
+                const resultDiv = targetId.replace('#', '') + '-result';
+
+                // Map tab IDs to report types
                 const reportMap = {
                     'staff-ranking': 'staff_ranking',
                     'staff-performance': 'staff_performance',
-                    'staff-comparison': 'staff_comparison'
+                    'staff-products': 'staff_products',
+                    'staff-orders': 'staff_orders',
+                    'staff-efficiency': 'staff_efficiency',
+                    'staff-comparison': 'staff_comparison',
+                    'staff-customers': 'staff_customers',
+                    'advanced-queries': 'advanced_queries'
                 };
-                const reportType = e.target.id.replace('-tab', '');
-                const resultDiv = e.target.getAttribute('data-bs-target').replace('#', '') + '-result';
+
                 loadReport(reportMap[reportType], resultDiv);
             });
         });
 
+        // Initialize with last 7 days and load first report
         document.addEventListener('DOMContentLoaded', function() {
             setPredefinedRange();
+            // Auto load first report
             loadReport('staff_ranking', 'staff-ranking-result');
         });
 
+        // Refresh current active report
         function refreshCurrentReport() {
             const activeTab = document.querySelector('#staffReportTabs .nav-link.active');
             if (activeTab) {
@@ -288,6 +414,7 @@
                 activeTab.dispatchEvent(event);
             }
         }
+
     </script>
 </body>
 </html>

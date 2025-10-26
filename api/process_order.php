@@ -31,9 +31,17 @@ try {
         throw new Exception("Invalid JSON data");
     }
 
+    // Debug: Log received data
+    error_log("Received data: " . json_encode($data));
+
     // Validate required fields
-    if (!isset($data['items']) || !isset($data['total_amount']) || !isset($data['payment_method'])) {
-        throw new Exception("Missing required fields");
+    if (!isset($data['items']) || !isset($data['total_amount']) || !isset($data['payment_method']) || !isset($data['staff_id'])) {
+        $missing = [];
+        if (!isset($data['items'])) $missing[] = 'items';
+        if (!isset($data['total_amount'])) $missing[] = 'total_amount';
+        if (!isset($data['payment_method'])) $missing[] = 'payment_method';
+        if (!isset($data['staff_id'])) $missing[] = 'staff_id';
+        throw new Exception("Missing required fields: " . implode(', ', $missing));
     }
 
     // Start transaction
@@ -59,7 +67,7 @@ try {
 
     $customerType = isset($data['customer_id']) && $data['customer_id'] ? 'member' : 'guest';
     $pointsEarned = floor($data['total_amount'] / 10); // 1 point per 10 baht
-    $staffId = 1; // Default staff ID, should be from session in real app
+    $staffId = $data['staff_id']; // Get staff ID from request
 
     $orderStmt = $db->prepare($insertOrderQuery);
     $orderStmt->bindParam(':order_number', $orderNumber);
@@ -137,12 +145,18 @@ try {
     // Clear any output buffer
     ob_clean();
 
+    // Log detailed error
+    error_log("Order processing error: " . $exception->getMessage());
+    error_log("Stack trace: " . $exception->getTraceAsString());
+
     // Send JSON error response
     http_response_code(500);
     echo json_encode(array(
         "success" => false,
         "message" => $exception->getMessage(),
-        "error_type" => "server_error"
+        "error_type" => "server_error",
+        "file" => $exception->getFile(),
+        "line" => $exception->getLine()
     ));
 }
 

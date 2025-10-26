@@ -126,7 +126,7 @@
         <!-- Page Header -->
         <div class="page-header">
             <h2><i class="fas fa-chart-line"></i> รายงานยอดขาย</h2>
-            <p class="mb-0">วิเคราะห์ยอดขาย ลูกค้า และรูปแบบการสั่งซื้อ</p>
+            <p class="mb-0">วิเคราะห์ยอดขาย รายได้ และแนวโน้มการขายของร้าน</p>
         </div>
 
         <!-- Date Filter -->
@@ -156,7 +156,36 @@
                     <label class="form-label">&nbsp;</label>
                     <button class="btn btn-coffee w-100" onclick="refreshCurrentReport()">
                         <i class="fas fa-sync-alt"></i> อัปเดต
-                    
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Filters -->
+        <div class="date-filter">
+            <h6 class="mb-3"><i class="fas fa-filter"></i> ตัวกรองเพิ่มเติม</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label"><i class="fas fa-user"></i> ชื่อลูกค้า</label>
+                    <input type="text" class="form-control" id="filterCustomerName" placeholder="พิมพ์เพื่อค้นหา... (เช่น สมชาย, นิดา)" onchange="refreshCurrentReport()">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><i class="fas fa-calendar-day"></i> เดือน</label>
+                    <select class="form-select" id="filterMonth" onchange="refreshCurrentReport()">
+                        <option value="">ทุกเดือน</option>
+                        <option value="1">มกราคม</option>
+                        <option value="2">กุมภาพันธ์</option>
+                        <option value="3">มีนาคม</option>
+                        <option value="4">เมษายน</option>
+                        <option value="5">พฤษภาคม</option>
+                        <option value="6">มิถุนายน</option>
+                        <option value="7">กรกฎาคม</option>
+                        <option value="8">สิงหาคม</option>
+                        <option value="9">กันยายน</option>
+                        <option value="10">ตุลาคม</option>
+                        <option value="11">พฤศจิกายน</option>
+                        <option value="12">ธันวาคม</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -166,23 +195,48 @@
             <ul class="nav nav-pills nav-fill" id="salesReportTabs" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="daily-sales-tab" data-bs-toggle="pill" data-bs-target="#daily-sales" type="button">
-                        <i class="fas fa-chart-line"></i> ยอดขายรายวัน
-                    
+                        <i class="fas fa-calendar-day"></i> ยอดขายรายวัน
+                    </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="monthly-sales-tab" data-bs-toggle="pill" data-bs-target="#monthly-sales" type="button">
                         <i class="fas fa-calendar-alt"></i> ยอดขายรายเดือน
-                    
+                    </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="payment-tab" data-bs-toggle="pill" data-bs-target="#payment" type="button">
-                        <i class="fas fa-credit-card"></i> การชำระเงิน
-                    
+                    <button class="nav-link" id="best-day-tab" data-bs-toggle="pill" data-bs-target="#best-day" type="button">
+                        <i class="fas fa-trophy"></i> วันที่ขายดี
+                    </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="customer-tab" data-bs-toggle="pill" data-bs-target="#customer" type="button">
-                        <i class="fas fa-users"></i> ลูกค้า
-                    
+                    <button class="nav-link" id="hourly-analysis-tab" data-bs-toggle="pill" data-bs-target="#hourly-analysis" type="button">
+                        <i class="fas fa-clock"></i> วิเคราะห์รายชั่วโมง
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="peak-hours-tab" data-bs-toggle="pill" data-bs-target="#peak-hours" type="button">
+                        <i class="fas fa-chart-area"></i> ช่วงเวลาคึกคัก
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="order-patterns-tab" data-bs-toggle="pill" data-bs-target="#order-patterns" type="button">
+                        <i class="fas fa-chart-pie"></i> รูปแบบการสั่งซื้อ
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="order-size-tab" data-bs-toggle="pill" data-bs-target="#order-size" type="button">
+                        <i class="fas fa-shopping-basket"></i> ขนาดออเดอร์
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="payment-analysis-tab" data-bs-toggle="pill" data-bs-target="#payment-analysis" type="button">
+                        <i class="fas fa-credit-card"></i> วิเคราะห์การชำระเงิน
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="customer-analysis-tab" data-bs-toggle="pill" data-bs-target="#customer-analysis" type="button">
+                        <i class="fas fa-users"></i> วิเคราะห์ลูกค้า
+                    </button>
                 </li>
             </ul>
         </div>
@@ -193,12 +247,9 @@
             <div class="tab-pane fade show active" id="daily-sales" role="tabpanel">
                 <div class="card">
                     <div class="card-header">
-                        <h5><i class="fas fa-chart-line"></i> ยอดขายรายวัน</h5>
+                        <h5><i class="fas fa-calendar-day"></i> ยอดขายรายวัน</h5>
                     </div>
                     <div class="card-body">
-                        
-                            
-                        
                         <div id="daily-sales-result"></div>
                     </div>
                 </div>
@@ -211,40 +262,91 @@
                         <h5><i class="fas fa-calendar-alt"></i> ยอดขายรายเดือน</h5>
                     </div>
                     <div class="card-body">
-                        
-                            
-                        
                         <div id="monthly-sales-result"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Payment Analysis -->
-            <div class="tab-pane fade" id="payment" role="tabpanel">
+            <!-- Best Day -->
+            <div class="tab-pane fade" id="best-day" role="tabpanel">
                 <div class="card">
                     <div class="card-header">
-                        <h5><i class="fas fa-credit-card"></i> วิเคราะห์วิธีการชำระเงิน</h5>
+                        <h5><i class="fas fa-trophy"></i> วันที่ขายดีที่สุด</h5>
                     </div>
                     <div class="card-body">
-                        
-                            
-                        
-                        <div id="payment-result"></div>
+                        <div id="best-day-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hourly Analysis -->
+            <div class="tab-pane fade" id="hourly-analysis" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-clock"></i> วิเคราะห์ยอดขายรายชั่วโมง</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="hourly-analysis-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Peak Hours -->
+            <div class="tab-pane fade" id="peak-hours" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-area"></i> ช่วงเวลาคึกคักที่สุด</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="peak-hours-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Patterns -->
+            <div class="tab-pane fade" id="order-patterns" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-pie"></i> รูปแบบการสั่งซื้อ</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="order-patterns-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Size Analysis -->
+            <div class="tab-pane fade" id="order-size" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-shopping-basket"></i> วิเคราะห์ขนาดออเดอร์</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="order-size-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Analysis -->
+            <div class="tab-pane fade" id="payment-analysis" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-credit-card"></i> วิเคราะห์การชำระเงิน</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="payment-analysis-result"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Customer Analysis -->
-            <div class="tab-pane fade" id="customer" role="tabpanel">
+            <div class="tab-pane fade" id="customer-analysis" role="tabpanel">
                 <div class="card">
                     <div class="card-header">
                         <h5><i class="fas fa-users"></i> วิเคราะห์ลูกค้า</h5>
                     </div>
                     <div class="card-body">
-                        
-                            
-                        
-                        <div id="customer-result"></div>
+                        <div id="customer-analysis-result"></div>
                     </div>
                 </div>
             </div>
@@ -294,23 +396,35 @@
         // Auto load report when tab changes
         document.querySelectorAll('#salesReportTabs button[data-bs-toggle="pill"]').forEach(button => {
             button.addEventListener('shown.bs.tab', function(e) {
+                const targetId = e.target.getAttribute('data-bs-target');
+                const reportType = e.target.id.replace('-tab', '');
+                const resultDiv = targetId.replace('#', '') + '-result';
+
+                // Map tab IDs to report types
                 const reportMap = {
                     'daily-sales': 'daily_sales',
                     'monthly-sales': 'monthly_sales',
-                    'payment': 'payment_analysis',
-                    'customer': 'customer_analysis'
+                    'best-day': 'best_day',
+                    'hourly-analysis': 'hourly_analysis',
+                    'peak-hours': 'peak_hours',
+                    'order-patterns': 'order_patterns',
+                    'order-size': 'order_size_analysis',
+                    'payment-analysis': 'payment_analysis',
+                    'customer-analysis': 'customer_analysis'
                 };
-                const reportType = e.target.id.replace('-tab', '');
-                const resultDiv = e.target.getAttribute('data-bs-target').replace('#', '') + '-result';
+
                 loadReport(reportMap[reportType], resultDiv);
             });
         });
 
+        // Initialize with last 7 days and load first report
         document.addEventListener('DOMContentLoaded', function() {
             setPredefinedRange();
+            // Auto load first report
             loadReport('daily_sales', 'daily-sales-result');
         });
 
+        // Refresh current active report
         function refreshCurrentReport() {
             const activeTab = document.querySelector('#salesReportTabs .nav-link.active');
             if (activeTab) {
@@ -318,6 +432,7 @@
                 activeTab.dispatchEvent(event);
             }
         }
+
     </script>
 </body>
 </html>

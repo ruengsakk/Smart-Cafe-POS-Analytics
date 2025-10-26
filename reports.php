@@ -227,6 +227,44 @@
             max-height: 1000px;
             opacity: 1;
         }
+
+        /* Advanced Filters Styling */
+        #advanced-filters {
+            transition: all 0.3s ease;
+        }
+        #advanced-filters .form-label {
+            font-weight: 600;
+            color: #8B4513;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+        #advanced-filters .form-label i {
+            color: #D2691E;
+            margin-right: 5px;
+        }
+        #advanced-filters input::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+        #advanced-filters .text-muted {
+            font-size: 0.75rem;
+            display: block;
+            margin-top: 2px;
+        }
+        #active-filters {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-left: 3px solid #ff9800;
+        }
+        #active-filters-list div {
+            padding: 2px 0;
+            color: #8B4513;
+        }
+        .card-header[onclick] {
+            transition: background-color 0.2s;
+        }
+        .card-header[onclick]:hover {
+            background-color: #f8f9fa;
+        }
     </style>
 </head>
 <body>
@@ -300,6 +338,79 @@
                         <button class="btn btn-coffee btn-sm w-100" onclick="refreshCurrentReport()">
                             <i class="fas fa-sync-alt"></i> อัปเดตรายงาน
                         </button>
+                    </div>
+                </div>
+
+                <!-- Advanced Filters -->
+                <div class="card mb-3">
+                    <div class="card-header" onclick="toggleAdvancedFilters()" style="cursor: pointer;">
+                        <h6>
+                            <i class="fas fa-filter"></i> ตัวกรองขั้นสูง
+                            <span class="float-end" id="filter-toggle-icon">
+                                <i class="fas fa-chevron-down"></i>
+                            </span>
+                        </h6>
+                    </div>
+                    <div class="card-body" id="advanced-filters" style="display: none;">
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-utensils"></i> ชื่อเมนู
+                            </label>
+                            <input type="text" class="form-control form-control-sm" id="filterMenuName"
+                                   placeholder="เช่น Latte, กาแฟ">
+                            <small class="text-muted">ใช้กับรายงานสินค้า</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-user-tie"></i> ชื่อพนักงาน
+                            </label>
+                            <input type="text" class="form-control form-control-sm" id="filterStaffName"
+                                   placeholder="เช่น สมชาย, กานดา">
+                            <small class="text-muted">ใช้กับรายงานพนักงาน</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-users"></i> ชื่อลูกค้า
+                            </label>
+                            <input type="text" class="form-control form-control-sm" id="filterCustomerName"
+                                   placeholder="เช่น สมหญิง">
+                            <small class="text-muted">ใช้กับรายงานลูกค้า</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-calendar-day"></i> เดือน
+                            </label>
+                            <select class="form-select form-select-sm" id="filterMonth">
+                                <option value="">ทุกเดือน</option>
+                                <option value="1">มกราคม</option>
+                                <option value="2">กุมภาพันธ์</option>
+                                <option value="3">มีนาคม</option>
+                                <option value="4">เมษายน</option>
+                                <option value="5">พฤษภาคม</option>
+                                <option value="6">มิถุนายน</option>
+                                <option value="7">กรกฎาคม</option>
+                                <option value="8">สิงหาคม</option>
+                                <option value="9">กันยายน</option>
+                                <option value="10">ตุลาคม</option>
+                                <option value="11">พฤศจิกายน</option>
+                                <option value="12">ธันวาคม</option>
+                            </select>
+                            <small class="text-muted">กรองเฉพาะเดือนที่เลือก</small>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-sm" onclick="applyAdvancedFilters()">
+                                <i class="fas fa-check"></i> ใช้ตัวกรอง
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="clearAdvancedFilters()">
+                                <i class="fas fa-times"></i> ล้างตัวกรอง
+                            </button>
+                        </div>
+                        <div class="mt-3 p-2 bg-light rounded" id="active-filters" style="display: none;">
+                            <small class="text-muted">
+                                <strong>ตัวกรองที่ใช้:</strong>
+                                <div id="active-filters-list"></div>
+                            </small>
+                        </div>
                     </div>
                 </div>
 
@@ -394,6 +505,10 @@
                                         <i class="fas fa-clipboard-list"></i> สรุปยอดขายสินค้า
                                         <span class="badge bg-warning">ใหม่</span>
                                     </button>
+                                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#monthly-menu-count">
+                                        <i class="fas fa-calendar-alt"></i> จำนวนเมนูแต่ละเดือน
+                                        <span class="badge bg-warning">ใหม่</span>
+                                    </button>
                                 </div>
                             </div>
 
@@ -427,6 +542,10 @@
                                     </button>
                                     <button class="nav-link" data-bs-toggle="pill" data-bs-target="#staff-comparison">
                                         <i class="fas fa-balance-scale"></i> เปรียบเทียบพนักงาน
+                                    </button>
+                                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#staff-customers">
+                                        <i class="fas fa-user-friends"></i> พนักงานขายให้ลูกค้าใคร
+                                        <span class="badge bg-warning">ใหม่</span>
                                     </button>
                                 </div>
                             </div>
@@ -902,6 +1021,44 @@
                                     <i class="fas fa-play"></i> รันคำสั่ง SQL
                                 </button>
                                 <div id="product-summary-result" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Menu Count Report -->
+                    <div class="tab-pane fade" id="monthly-menu-count">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4><i class="fas fa-calendar-alt"></i> จำนวนเมนูที่ขายแต่ละเดือน</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="highlight-sql">
+                                    <strong>เป้าหมายการเรียนรู้:</strong> หาว่าในแต่ละเดือนขายกี่เมนู (COUNT DISTINCT)
+                                </div>
+
+                                <button class="btn btn-coffee" onclick="loadReport('monthly_menu_count')">
+                                    <i class="fas fa-play"></i> รันคำสั่ง SQL
+                                </button>
+                                <div id="monthly-menu-count-result" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Staff Customers Report -->
+                    <div class="tab-pane fade" id="staff-customers">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4><i class="fas fa-user-friends"></i> พนักงานขายให้ลูกค้าคนไหนบ้าง</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="highlight-sql">
+                                    <strong>เป้าหมายการเรียนรู้:</strong> ดูว่าพนักงานแต่ละคนขายให้ลูกค้าใดบ้าง (Staff → Customer Mapping)
+                                </div>
+
+                                <button class="btn btn-coffee" onclick="loadReport('staff_customers')">
+                                    <i class="fas fa-play"></i> รันคำสั่ง SQL
+                                </button>
+                                <div id="staff-customers-result" class="mt-3"></div>
                             </div>
                         </div>
                     </div>

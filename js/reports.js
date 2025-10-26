@@ -346,10 +346,20 @@ async function loadReport(reportType) {
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
 
-        // Build URL with date parameters
+        // Get advanced filter values
+        const menuName = document.getElementById('filterMenuName')?.value || '';
+        const staffName = document.getElementById('filterStaffName')?.value || '';
+        const customerName = document.getElementById('filterCustomerName')?.value || '';
+        const month = document.getElementById('filterMonth')?.value || '';
+
+        // Build URL with all parameters
         let url = `api/reports.php?type=${reportType}`;
         if (startDate) url += `&start_date=${startDate}`;
         if (endDate) url += `&end_date=${endDate}`;
+        if (menuName) url += `&menu_name=${encodeURIComponent(menuName)}`;
+        if (staffName) url += `&staff_name=${encodeURIComponent(staffName)}`;
+        if (customerName) url += `&customer_name=${encodeURIComponent(customerName)}`;
+        if (month) url += `&month=${month}`;
 
         console.log('API URL:', url);
         const response = await fetch(url);
@@ -557,6 +567,97 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add copy SQL buttons
     addCopySqlButtons();
 });
+
+// ============================================
+// Advanced Filters Functions
+// ============================================
+
+function toggleAdvancedFilters() {
+    const filtersDiv = document.getElementById('advanced-filters');
+    const toggleIcon = document.getElementById('filter-toggle-icon');
+
+    if (filtersDiv.style.display === 'none') {
+        filtersDiv.style.display = 'block';
+        toggleIcon.innerHTML = '<i class="fas fa-chevron-up"></i>';
+    } else {
+        filtersDiv.style.display = 'none';
+        toggleIcon.innerHTML = '<i class="fas fa-chevron-down"></i>';
+    }
+}
+
+function applyAdvancedFilters() {
+    // Get filter values
+    const menuName = document.getElementById('filterMenuName').value;
+    const staffName = document.getElementById('filterStaffName').value;
+    const customerName = document.getElementById('filterCustomerName').value;
+    const month = document.getElementById('filterMonth').value;
+
+    // Build active filters display
+    const activeFilters = [];
+    if (menuName) activeFilters.push(`เมนู: ${menuName}`);
+    if (staffName) activeFilters.push(`พนักงาน: ${staffName}`);
+    if (customerName) activeFilters.push(`ลูกค้า: ${customerName}`);
+    if (month) {
+        const monthNames = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                           'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+        activeFilters.push(`เดือน: ${monthNames[parseInt(month) - 1]}`);
+    }
+
+    // Show active filters
+    const activeFiltersDiv = document.getElementById('active-filters');
+    const activeFiltersList = document.getElementById('active-filters-list');
+
+    if (activeFilters.length > 0) {
+        activeFiltersList.innerHTML = activeFilters.map(f => `<div>• ${f}</div>`).join('');
+        activeFiltersDiv.style.display = 'block';
+        showNotification('ใช้ตัวกรองเรียบร้อย', 'success');
+    } else {
+        activeFiltersDiv.style.display = 'none';
+    }
+
+    // Reload current report with filters
+    if (currentReportType) {
+        loadReport(currentReportType);
+    }
+}
+
+function clearAdvancedFilters() {
+    // Clear all filter inputs
+    document.getElementById('filterMenuName').value = '';
+    document.getElementById('filterStaffName').value = '';
+    document.getElementById('filterCustomerName').value = '';
+    document.getElementById('filterMonth').value = '';
+
+    // Hide active filters
+    document.getElementById('active-filters').style.display = 'none';
+    document.getElementById('active-filters-list').innerHTML = '';
+
+    showNotification('ล้างตัวกรองเรียบร้อย', 'info');
+
+    // Reload current report without filters
+    if (currentReportType) {
+        loadReport(currentReportType);
+    }
+}
+
+// Notification helper
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
 
 // Format currency function
 function formatCurrency(amount) {

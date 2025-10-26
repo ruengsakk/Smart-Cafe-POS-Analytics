@@ -25,6 +25,12 @@ try {
     $startDate = $_GET['start_date'] ?? null;
     $endDate = $_GET['end_date'] ?? null;
 
+    // Additional filter parameters
+    $menuName = $_GET['menu_name'] ?? null;
+    $staffName = $_GET['staff_name'] ?? null;
+    $customerName = $_GET['customer_name'] ?? null;
+    $month = $_GET['month'] ?? null;
+
     // Build date filter condition
     $dateFilter = "";
     $dateParams = [];
@@ -42,6 +48,33 @@ try {
         // Default to last 7 days if no date specified
         $dateFilter = " AND order_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
         $dateParams = [];
+    }
+
+    // Build additional filters
+    $menuFilter = "";
+    $staffFilter = "";
+    $customerFilter = "";
+    $monthFilter = "";
+    $additionalParams = [];
+
+    if ($menuName) {
+        $menuFilter = " AND m.name LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci";
+        $additionalParams[] = "%$menuName%";
+    }
+
+    if ($staffName) {
+        $staffFilter = " AND s.name LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci";
+        $additionalParams[] = "%$staffName%";
+    }
+
+    if ($customerName) {
+        $customerFilter = " AND c.name LIKE CONVERT(? USING utf8mb4) COLLATE utf8mb4_unicode_ci";
+        $additionalParams[] = "%$customerName%";
+    }
+
+    if ($month) {
+        $monthFilter = " AND MONTH(order_date) = ?";
+        $additionalParams[] = $month;
     }
 
     // Prepare final parameters array for execution
@@ -667,12 +700,53 @@ try {
                 FROM menus m
                 LEFT JOIN categories c ON m.category_id = c.id
                 LEFT JOIN order_items oi ON m.id = oi.menu_id
-                LEFT JOIN orders o ON oi.order_id = o.id $dateFilter
-                WHERE m.is_active = 1
+                LEFT JOIN orders o ON oi.order_id = o.id $dateFilter $monthFilter
+                WHERE m.is_active = 1 $menuFilter
                 GROUP BY m.id, m.name, c.name, m.price
                 ORDER BY 'ขายไปแล้ว' DESC
             ";
-            $finalParams = $dateParams;
+            $finalParams = array_merge($dateParams, $additionalParams);
+            break;
+
+        case 'monthly_menu_count':
+            $query = "
+                SELECT
+                    YEAR(o.order_date) AS 'ปี',
+                    MONTH(o.order_date) AS 'เดือน',
+                    MONTHNAME(o.order_date) AS 'ชื่อเดือน',
+                    COUNT(DISTINCT m.id) AS 'จำนวนเมนูที่ขาย',
+                    COUNT(DISTINCT o.id) AS 'จำนวนออเดอร์',
+                    SUM(oi.quantity) AS 'จำนวนแก้วทั้งหมด',
+                    SUM(oi.subtotal) AS 'ยอดขายรวม'
+                FROM orders o
+                JOIN order_items oi ON o.id = oi.order_id
+                JOIN menus m ON oi.menu_id = m.id
+                WHERE 1=1 $dateFilter $monthFilter
+                GROUP BY YEAR(o.order_date), MONTH(o.order_date)
+                ORDER BY YEAR(o.order_date) DESC, MONTH(o.order_date) DESC
+            ";
+            $finalParams = array_merge($dateParams, $additionalParams);
+            break;
+
+        case 'staff_customers':
+            $query = "
+                SELECT
+                    s.name AS 'ชื่อพนักงาน',
+                    COALESCE(c.name, 'Walk-in') AS 'ชื่อลูกค้า',
+                    c.phone AS 'เบอร์โทร',
+                    COUNT(DISTINCT o.id) AS 'จำนวนออเดอร์',
+                    SUM(o.total_amount) AS 'ยอดขายรวม',
+                    ROUND(AVG(o.total_amount), 2) AS 'ยอดขายเฉลี่ย',
+                    MIN(o.order_date) AS 'ซื้อครั้งแรก',
+                    MAX(o.order_date) AS 'ซื้อครั้งล่าสุด'
+                FROM staff s
+                JOIN orders o ON s.id = o.staff_id
+                LEFT JOIN customers c ON o.customer_id = c.id
+                WHERE 1=1 $dateFilter $staffFilter $customerFilter $monthFilter
+                GROUP BY s.id, s.name, c.id, c.name, c.phone
+                ORDER BY s.name, 'ยอดขายรวม' DESC
+            ";
+            $finalParams = array_merge($dateParams, $additionalParams);
             break;
 
         default:

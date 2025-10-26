@@ -21,12 +21,24 @@ function loadReport(reportType, containerId) {
     const startDate = document.getElementById('startDate')?.value || '';
     const endDate = document.getElementById('endDate')?.value || '';
 
+    // Get advanced filters
+    const menuName = document.getElementById('filterMenuName')?.value || '';
+    const staffName = document.getElementById('filterStaffName')?.value || '';
+    const customerName = document.getElementById('filterCustomerName')?.value || '';
+    const month = document.getElementById('filterMonth')?.value || '';
+
     // Build API URL
     const params = new URLSearchParams({
         type: reportType,
         start_date: startDate,
         end_date: endDate
     });
+
+    // Add advanced filters if present
+    if (menuName) params.append('menu_name', menuName);
+    if (staffName) params.append('staff_name', staffName);
+    if (customerName) params.append('customer_name', customerName);
+    if (month) params.append('month', month);
 
     // Fetch report data
     fetch(`api/reports.php?${params}`)

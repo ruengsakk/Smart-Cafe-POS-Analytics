@@ -296,9 +296,17 @@
                             รวม: ฿0.00
                         </div>
 
+                        <!-- Staff Info -->
+                        <div class="mt-3">
+                            <label class="form-label"><i class="fas fa-user-tie"></i> พนักงาน <span class="text-danger">*</span></label>
+                            <select class="form-select" id="staffSelect" required>
+                                <option value="">เลือกพนักงาน</option>
+                            </select>
+                        </div>
+
                         <!-- Customer Info -->
                         <div class="mt-3">
-                            <label class="form-label">ลูกค้า (ไม่บังคับ)</label>
+                            <label class="form-label"><i class="fas fa-user"></i> ลูกค้า (ไม่บังคับ)</label>
                             <select class="form-select" id="customerSelect">
                                 <option value="">ลูกค้าทั่วไป</option>
                             </select>
@@ -306,7 +314,7 @@
 
                         <!-- Payment Method -->
                         <div class="mt-3">
-                            <label class="form-label">วิธีการชำระเงิน</label>
+                            <label class="form-label"><i class="fas fa-credit-card"></i> วิธีการชำระเงิน</label>
                             <select class="form-select" id="paymentMethod">
                                 <option value="cash">เงินสด</option>
                                 <option value="qr">QR Code</option>
@@ -351,6 +359,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/pos.js"></script>
+    <script src="js/pos.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

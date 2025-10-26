@@ -161,6 +161,35 @@
             </div>
         </div>
 
+        <!-- Advanced Filters -->
+        <div class="date-filter">
+            <h6 class="mb-3"><i class="fas fa-filter"></i> ตัวกรองเพิ่มเติม</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label"><i class="fas fa-utensils"></i> ชื่อเมนู</label>
+                    <input type="text" class="form-control" id="filterMenuName" placeholder="พิมพ์เพื่อค้นหา... (เช่น Latte, กาแฟ)" onchange="refreshCurrentReport()">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><i class="fas fa-calendar-day"></i> เดือน</label>
+                    <select class="form-select" id="filterMonth" onchange="refreshCurrentReport()">
+                        <option value="">ทุกเดือน</option>
+                        <option value="1">มกราคม</option>
+                        <option value="2">กุมภาพันธ์</option>
+                        <option value="3">มีนาคม</option>
+                        <option value="4">เมษายน</option>
+                        <option value="5">พฤษภาคม</option>
+                        <option value="6">มิถุนายน</option>
+                        <option value="7">กรกฎาคม</option>
+                        <option value="8">สิงหาคม</option>
+                        <option value="9">กันยายน</option>
+                        <option value="10">ตุลาคม</option>
+                        <option value="11">พฤศจิกายน</option>
+                        <option value="12">ธันวาคม</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <!-- Report Tabs -->
         <div class="report-tabs">
             <ul class="nav nav-pills nav-fill" id="productReportTabs" role="tablist">
@@ -170,13 +199,38 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="product-summary-tab" data-bs-toggle="pill" data-bs-target="#product-summary" type="button">
+                        <i class="fas fa-clipboard-list"></i> สรุปยอดขายสินค้า
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="product-inventory-tab" data-bs-toggle="pill" data-bs-target="#product-inventory" type="button">
+                        <i class="fas fa-boxes"></i> รายงานสต็อก
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
                     <button class="nav-link" id="product-comparison-tab" data-bs-toggle="pill" data-bs-target="#product-comparison" type="button">
-                        <i class="fas fa-chart-bar"></i> ยอดขายตามหมวดหมู่
+                        <i class="fas fa-chart-bar"></i> เปรียบเทียบหมวดหมู่
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="product-performance-tab" data-bs-toggle="pill" data-bs-target="#product-performance" type="button">
+                        <i class="fas fa-chart-line"></i> ประสิทธิภาพสินค้า
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="product-trends-tab" data-bs-toggle="pill" data-bs-target="#product-trends" type="button">
+                        <i class="fas fa-chart-area"></i> เทรนด์สินค้า
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="slow-products-tab" data-bs-toggle="pill" data-bs-target="#slow-products" type="button">
                         <i class="fas fa-turtle"></i> สินค้าขายช้า
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="monthly-menu-count-tab" data-bs-toggle="pill" data-bs-target="#monthly-menu-count" type="button">
+                        <i class="fas fa-calendar-alt"></i> จำนวนเมนูแต่ละเดือน
                     </button>
                 </li>
             </ul>
@@ -196,14 +250,62 @@
                 </div>
             </div>
 
+            <!-- Product Summary -->
+            <div class="tab-pane fade" id="product-summary" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-clipboard-list"></i> สรุปยอดขายสินค้า</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="product-summary-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Inventory -->
+            <div class="tab-pane fade" id="product-inventory" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-boxes"></i> รายงานสต็อกสินค้า</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="product-inventory-result"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Product Comparison -->
             <div class="tab-pane fade" id="product-comparison" role="tabpanel">
                 <div class="card">
                     <div class="card-header">
-                        <h5><i class="fas fa-chart-bar"></i> ยอดขายตามหมวดหมู่สินค้า</h5>
+                        <h5><i class="fas fa-chart-bar"></i> เปรียบเทียบหมวดหมู่สินค้า</h5>
                     </div>
                     <div class="card-body">
                         <div id="product-comparison-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Performance -->
+            <div class="tab-pane fade" id="product-performance" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line"></i> ประสิทธิภาพสินค้า</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="product-performance-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Trends -->
+            <div class="tab-pane fade" id="product-trends" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-area"></i> เทรนด์สินค้า</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="product-trends-result"></div>
                     </div>
                 </div>
             </div>
@@ -216,6 +318,18 @@
                     </div>
                     <div class="card-body">
                         <div id="slow-products-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Menu Count -->
+            <div class="tab-pane fade" id="monthly-menu-count" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-calendar-alt"></i> จำนวนเมนูแต่ละเดือน</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="monthly-menu-count-result"></div>
                     </div>
                 </div>
             </div>
@@ -273,8 +387,13 @@
                 // Map tab IDs to report types
                 const reportMap = {
                     'top-products': 'top_products',
+                    'product-summary': 'product_summary',
+                    'product-inventory': 'product_inventory',
                     'product-comparison': 'product_comparison',
-                    'slow-products': 'slow_moving_products'
+                    'product-performance': 'product_performance',
+                    'product-trends': 'product_trends',
+                    'slow-products': 'slow_moving_products',
+                    'monthly-menu-count': 'monthly_menu_count'
                 };
 
                 loadReport(reportMap[reportType], resultDiv);
@@ -296,6 +415,7 @@
                 activeTab.dispatchEvent(event);
             }
         }
+
     </script>
 </body>
 </html>
