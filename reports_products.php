@@ -106,8 +106,6 @@
                             <li><a class="dropdown-item active" href="reports_products.php"><i class="fas fa-box-open"></i> รายงานสินค้า</a></li>
                             <li><a class="dropdown-item" href="reports_sales.php"><i class="fas fa-chart-line"></i> รายงานยอดขาย</a></li>
                             <li><a class="dropdown-item" href="reports_staff.php"><i class="fas fa-users-cog"></i> รายงานพนักงาน</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="reports.php"><i class="fas fa-list"></i> รายงานทั้งหมด</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">

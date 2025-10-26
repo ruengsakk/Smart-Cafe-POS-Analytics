@@ -250,8 +250,6 @@
                             <li><a class="dropdown-item" href="reports_products.php"><i class="fas fa-box-open"></i> รายงานสินค้า</a></li>
                             <li><a class="dropdown-item" href="reports_sales.php"><i class="fas fa-chart-line"></i> รายงานยอดขาย</a></li>
                             <li><a class="dropdown-item" href="reports_staff.php"><i class="fas fa-users-cog"></i> รายงานพนักงาน</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="reports.php"><i class="fas fa-list"></i> รายงานทั้งหมด</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
@@ -387,6 +385,14 @@
                                     <button class="nav-link" data-bs-toggle="pill" data-bs-target="#peak-hours">
                                         <i class="fas fa-chart-area"></i> ช่วงเวลาเร่าซื้อ
                                         <span class="badge bg-info">ใหม่</span>
+                                    </button>
+                                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#best-day">
+                                        <i class="fas fa-trophy"></i> วันที่ขายดีที่สุด
+                                        <span class="badge bg-warning">ใหม่</span>
+                                    </button>
+                                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#product-summary">
+                                        <i class="fas fa-clipboard-list"></i> สรุปยอดขายสินค้า
+                                        <span class="badge bg-warning">ใหม่</span>
                                     </button>
                                 </div>
                             </div>
@@ -858,6 +864,44 @@
                                     <i class="fas fa-play"></i> รันคำสั่ง SQL
                                 </button>
                                 <div id="staff-comparison-result" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Best Day Report -->
+                    <div class="tab-pane fade" id="best-day">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4><i class="fas fa-trophy"></i> วันที่ขายดีที่สุด</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="highlight-sql">
+                                    <strong>เป้าหมายการเรียนรู้:</strong> หาวันที่มียอดขายสูงสุด พร้อมจัดอันดับ Top 10
+                                </div>
+
+                                <button class="btn btn-coffee" onclick="loadReport('best_day')">
+                                    <i class="fas fa-play"></i> รันคำสั่ง SQL
+                                </button>
+                                <div id="best-day-result" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Summary Report -->
+                    <div class="tab-pane fade" id="product-summary">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4><i class="fas fa-clipboard-list"></i> สรุปยอดขายสินค้า</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="highlight-sql">
+                                    <strong>เป้าหมายการเรียนรู้:</strong> ดูว่าแต่ละสินค้าขายไปกี่ชิ้นแล้ว (เช่น กาแฟไปกี่แก้ว)
+                                </div>
+
+                                <button class="btn btn-coffee" onclick="loadReport('product_summary')">
+                                    <i class="fas fa-play"></i> รันคำสั่ง SQL
+                                </button>
+                                <div id="product-summary-result" class="mt-3"></div>
                             </div>
                         </div>
                     </div>

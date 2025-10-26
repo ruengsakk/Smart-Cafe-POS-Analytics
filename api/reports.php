@@ -619,6 +619,62 @@ try {
             $finalParams = $dateParams;
             break;
 
+        case 'best_day':
+            $query = "
+                SELECT
+                    DATE(order_date) AS 'วันที่',
+                    CASE DAYOFWEEK(order_date)
+                        WHEN 1 THEN 'อาทิตย์'
+                        WHEN 2 THEN 'จันทร์'
+                        WHEN 3 THEN 'อังคาร'
+                        WHEN 4 THEN 'พุธ'
+                        WHEN 5 THEN 'พฤหัสบดี'
+                        WHEN 6 THEN 'ศุกร์'
+                        WHEN 7 THEN 'เสาร์'
+                    END AS 'วัน',
+                    COUNT(*) AS 'จำนวนออเดอร์',
+                    SUM(total_amount) AS 'ยอดขายรวม',
+                    ROUND(AVG(total_amount), 2) AS 'ยอดขายเฉลี่ย',
+                    RANK() OVER (ORDER BY SUM(total_amount) DESC) AS 'อันดับ'
+                FROM orders
+                WHERE 1=1 $dateFilter
+                GROUP BY DATE(order_date), DAYOFWEEK(order_date)
+                ORDER BY 'ยอดขายรวม' DESC
+                LIMIT 10
+            ";
+            $finalParams = $dateParams;
+            break;
+
+        case 'product_summary':
+            $query = "
+                SELECT
+                    m.name AS 'ชื่อสินค้า',
+                    c.name AS 'หมวดหมู่',
+                    m.price AS 'ราคา',
+                    SUM(oi.quantity) AS 'ขายไปแล้ว',
+                    SUM(oi.subtotal) AS 'ยอดขายรวม',
+                    COUNT(DISTINCT o.id) AS 'จำนวนออเดอร์',
+                    ROUND(AVG(oi.unit_price), 2) AS 'ราคาเฉลี่ย',
+                    MIN(o.order_date) AS 'ขายครั้งแรก',
+                    MAX(o.order_date) AS 'ขายครั้งล่าสุด',
+                    CASE
+                        WHEN SUM(oi.quantity) >= 100 THEN '🔥 ขายดีมาก'
+                        WHEN SUM(oi.quantity) >= 50 THEN '⭐ ขายดี'
+                        WHEN SUM(oi.quantity) >= 20 THEN '👍 ขายปานกลาง'
+                        WHEN SUM(oi.quantity) >= 10 THEN '📊 ขายน้อย'
+                        ELSE '🔴 ขายน้อยมาก'
+                    END AS 'สถานะ'
+                FROM menus m
+                LEFT JOIN categories c ON m.category_id = c.id
+                LEFT JOIN order_items oi ON m.id = oi.menu_id
+                LEFT JOIN orders o ON oi.order_id = o.id $dateFilter
+                WHERE m.is_active = 1
+                GROUP BY m.id, m.name, c.name, m.price
+                ORDER BY 'ขายไปแล้ว' DESC
+            ";
+            $finalParams = $dateParams;
+            break;
+
         default:
             throw new Exception("Invalid report type");
     }
