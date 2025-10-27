@@ -571,11 +571,45 @@ try {
                     FROM order_items
                     GROUP BY order_id
                 ) oi_count ON o.id = oi_count.order_id
-                WHERE s.is_active = 1 $dateFilter
+                WHERE s.is_active = 1 $dateFilter $staffFilter $monthFilter
                 GROUP BY s.id, s.name, s.position
                 ORDER BY ยอดขายรวม DESC
             ";
-            $finalParams = $dateParams;
+            $finalParams = array_merge($dateParams, $additionalParams);
+            break;
+
+        case 'staff_order_details':
+            $query = "
+                SELECT
+                    o.id as 'หมายเลขออเดอร์',
+                    s.name as 'ชื่อพนักงาน',
+                    COALESCE(c.name, 'Walk-in') as 'ชื่อลูกค้า',
+                    DATE(o.order_date) as 'วันที่',
+                    TIME(o.order_time) as 'เวลา',
+                    o.total_amount as 'ยอดชำระ',
+                    CASE o.payment_type
+                        WHEN 'cash' THEN 'เงินสด'
+                        WHEN 'qr' THEN 'QR Code'
+                        WHEN 'online' THEN 'Online'
+                        ELSE o.payment_type
+                    END as 'วิธีชำระเงิน',
+                    GROUP_CONCAT(
+                        CONCAT(m.name, ' (', oi.quantity, ')')
+                        ORDER BY m.name
+                        SEPARATOR ', '
+                    ) as 'รายการสินค้า',
+                    COUNT(DISTINCT oi.menu_id) as 'จำนวนรายการ',
+                    SUM(oi.quantity) as 'จำนวนชิ้น'
+                FROM orders o
+                JOIN staff s ON o.staff_id = s.id
+                LEFT JOIN customers c ON o.customer_id = c.id
+                JOIN order_items oi ON o.id = oi.order_id
+                JOIN menus m ON oi.menu_id = m.id
+                WHERE s.is_active = 1 $dateFilter $staffFilter $monthFilter
+                GROUP BY o.id, s.name, c.name, o.order_date, o.order_time, o.total_amount, o.payment_type
+                ORDER BY o.order_date DESC, o.order_time DESC
+            ";
+            $finalParams = array_merge($dateParams, $additionalParams);
             break;
 
         case 'staff_efficiency':
@@ -745,6 +779,115 @@ try {
                 WHERE 1=1 $dateFilter $staffFilter $customerFilter $monthFilter
                 GROUP BY s.id, s.name, c.id, c.name, c.phone
                 ORDER BY s.name, 'ยอดขายรวม' DESC
+            ";
+            $finalParams = array_merge($dateParams, $additionalParams);
+            break;
+
+        case 'top_menu_by_month':
+            $query = "
+                WITH monthly_sales AS (
+                    SELECT
+                        YEAR(o.order_date) AS year,
+                        MONTH(o.order_date) AS month,
+                        m.id AS menu_id,
+                        m.name AS menu_name,
+                        c.name AS category_name,
+                        SUM(oi.quantity) AS total_quantity,
+                        SUM(oi.subtotal) AS total_sales,
+                        COUNT(DISTINCT o.id) AS order_count
+                    FROM orders o
+                    JOIN order_items oi ON o.id = oi.order_id
+                    JOIN menus m ON oi.menu_id = m.id
+                    LEFT JOIN categories c ON m.category_id = c.id
+                    WHERE 1=1 $dateFilter $monthFilter
+                    GROUP BY YEAR(o.order_date), MONTH(o.order_date), m.id, m.name, c.name
+                ),
+                ranked_menus AS (
+                    SELECT
+                        year,
+                        month,
+                        menu_name,
+                        category_name,
+                        total_quantity,
+                        total_sales,
+                        order_count,
+                        RANK() OVER (PARTITION BY year, month ORDER BY total_quantity DESC) AS ranking
+                    FROM monthly_sales
+                )
+                SELECT
+                    year AS 'ปี',
+                    month AS 'เดือน',
+                    CASE month
+                        WHEN 1 THEN 'มกราคม'
+                        WHEN 2 THEN 'กุมภาพันธ์'
+                        WHEN 3 THEN 'มีนาคม'
+                        WHEN 4 THEN 'เมษายน'
+                        WHEN 5 THEN 'พฤษภาคม'
+                        WHEN 6 THEN 'มิถุนายน'
+                        WHEN 7 THEN 'กรกฎาคม'
+                        WHEN 8 THEN 'สิงหาคม'
+                        WHEN 9 THEN 'กันยายน'
+                        WHEN 10 THEN 'ตุลาคม'
+                        WHEN 11 THEN 'พฤศจิกายน'
+                        WHEN 12 THEN 'ธันวาคม'
+                    END AS 'ชื่อเดือน',
+                    menu_name AS 'เมนูขายดีที่สุด',
+                    category_name AS 'หมวดหมู่',
+                    total_quantity AS 'จำนวนที่ขาย',
+                    total_sales AS 'ยอดขาย',
+                    order_count AS 'จำนวนออเดอร์',
+                    CASE
+                        WHEN total_quantity >= 50 THEN '🔥 ขายดีมาก'
+                        WHEN total_quantity >= 30 THEN '⭐ ขายดี'
+                        WHEN total_quantity >= 20 THEN '👍 ขายปานกลาง'
+                        ELSE '📊 ขายน้อย'
+                    END AS 'สถานะ'
+                FROM ranked_menus
+                WHERE ranking = 1
+                ORDER BY year DESC, month DESC
+            ";
+            $finalParams = array_merge($dateParams, $additionalParams);
+            break;
+
+        case 'staff_monthly_sales':
+            $query = "
+                SELECT
+                    s.name AS 'ชื่อพนักงาน',
+                    s.position AS 'ตำแหน่ง',
+                    YEAR(o.order_date) AS 'ปี',
+                    MONTH(o.order_date) AS 'เดือน',
+                    CASE MONTH(o.order_date)
+                        WHEN 1 THEN 'มกราคม'
+                        WHEN 2 THEN 'กุมภาพันธ์'
+                        WHEN 3 THEN 'มีนาคม'
+                        WHEN 4 THEN 'เมษายน'
+                        WHEN 5 THEN 'พฤษภาคม'
+                        WHEN 6 THEN 'มิถุนายน'
+                        WHEN 7 THEN 'กรกฎาคม'
+                        WHEN 8 THEN 'สิงหาคม'
+                        WHEN 9 THEN 'กันยายน'
+                        WHEN 10 THEN 'ตุลาคม'
+                        WHEN 11 THEN 'พฤศจิกายน'
+                        WHEN 12 THEN 'ธันวาคม'
+                    END AS 'ชื่อเดือน',
+                    COUNT(DISTINCT o.id) AS 'จำนวนออเดอร์',
+                    SUM(o.total_amount) AS 'ยอดขายรวม',
+                    ROUND(AVG(o.total_amount), 2) AS 'ออเดอร์เฉลี่ย',
+                    MIN(o.total_amount) AS 'ออเดอร์ต่ำสุด',
+                    MAX(o.total_amount) AS 'ออเดอร์สูงสุด',
+                    COUNT(DISTINCT DATE(o.order_date)) AS 'จำนวนวันทำงาน',
+                    ROUND(SUM(o.total_amount) / COUNT(DISTINCT DATE(o.order_date)), 2) AS 'ยอดขายต่อวัน',
+                    CASE
+                        WHEN SUM(o.total_amount) >= 10000 THEN '🏆 ยอดเยี่ยม'
+                        WHEN SUM(o.total_amount) >= 5000 THEN '⭐ ดีมาก'
+                        WHEN SUM(o.total_amount) >= 2000 THEN '👍 ดี'
+                        ELSE '📊 ปกติ'
+                    END AS 'ระดับผลงาน'
+                FROM staff s
+                JOIN orders o ON s.id = o.staff_id
+                WHERE s.is_active = 1 $dateFilter $staffFilter $monthFilter
+                GROUP BY s.id, s.name, s.position, YEAR(o.order_date), MONTH(o.order_date)
+                ORDER BY YEAR(o.order_date) DESC, MONTH(o.order_date) DESC, SUM(o.total_amount) DESC
             ";
             $finalParams = array_merge($dateParams, $additionalParams);
             break;

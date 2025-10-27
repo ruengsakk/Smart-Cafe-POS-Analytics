@@ -233,6 +233,11 @@
                         <i class="fas fa-calendar-alt"></i> จำนวนเมนูแต่ละเดือน
                     </button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="top-menu-by-month-tab" data-bs-toggle="pill" data-bs-target="#top-menu-by-month" type="button">
+                        <i class="fas fa-trophy"></i> เมนูขายดีแต่ละเดือน
+                    </button>
+                </li>
             </ul>
         </div>
 
@@ -333,6 +338,21 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Top Menu by Month -->
+            <div class="tab-pane fade" id="top-menu-by-month" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-trophy"></i> เมนูขายดีที่สุดในแต่ละเดือน</h5>
+                        <p class="mb-0 mt-2 small text-white-50">
+                            <i class="fas fa-info-circle"></i> แสดงเมนูที่ขายได้มากที่สุดในแต่ละเดือน (จัดอันดับตามจำนวนที่ขาย)
+                        </p>
+                    </div>
+                    <div class="card-body">
+                        <div id="top-menu-by-month-result"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -393,7 +413,8 @@
                     'product-performance': 'product_performance',
                     'product-trends': 'product_trends',
                     'slow-products': 'slow_moving_products',
-                    'monthly-menu-count': 'monthly_menu_count'
+                    'monthly-menu-count': 'monthly_menu_count',
+                    'top-menu-by-month': 'top_menu_by_month'
                 };
 
                 loadReport(reportMap[reportType], resultDiv);

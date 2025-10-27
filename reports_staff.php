@@ -210,7 +210,12 @@
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="staff-orders-tab" data-bs-toggle="pill" data-bs-target="#staff-orders" type="button">
-                        <i class="fas fa-shopping-cart"></i> ออเดอร์ต่อพนักงาน
+                        <i class="fas fa-shopping-cart"></i> สรุปออเดอร์ต่อพนักงาน
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="staff-order-details-tab" data-bs-toggle="pill" data-bs-target="#staff-order-details" type="button">
+                        <i class="fas fa-receipt"></i> รายละเอียดออเดอร์
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -226,6 +231,11 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="staff-customers-tab" data-bs-toggle="pill" data-bs-target="#staff-customers" type="button">
                         <i class="fas fa-users"></i> ลูกค้าต่อพนักงาน
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="staff-monthly-sales-tab" data-bs-toggle="pill" data-bs-target="#staff-monthly-sales" type="button">
+                        <i class="fas fa-calendar-check"></i> ยอดขายรายเดือน
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -278,10 +288,25 @@
             <div class="tab-pane fade" id="staff-orders" role="tabpanel">
                 <div class="card">
                     <div class="card-header">
-                        <h5><i class="fas fa-shopping-cart"></i> ออเดอร์ต่อพนักงาน</h5>
+                        <h5><i class="fas fa-shopping-cart"></i> สรุปออเดอร์ต่อพนักงาน</h5>
                     </div>
                     <div class="card-body">
                         <div id="staff-orders-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Order Details -->
+            <div class="tab-pane fade" id="staff-order-details" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-receipt"></i> รายละเอียดออเดอร์ทั้งหมด</h5>
+                        <p class="mb-0 mt-2 small text-white-50">
+                            <i class="fas fa-info-circle"></i> พิมพ์ชื่อพนักงานในช่องค้นหาด้านบน เพื่อดูออเดอร์ที่พนักงานคนนั้นดูแล
+                        </p>
+                    </div>
+                    <div class="card-body">
+                        <div id="staff-order-details-result"></div>
                     </div>
                 </div>
             </div>
@@ -318,6 +343,21 @@
                     </div>
                     <div class="card-body">
                         <div id="staff-customers-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Monthly Sales -->
+            <div class="tab-pane fade" id="staff-monthly-sales" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-calendar-check"></i> ยอดขายรายเดือนของพนักงาน</h5>
+                        <p class="mb-0 mt-2 small text-white-50">
+                            <i class="fas fa-info-circle"></i> แสดงยอดขายและประสิทธิภาพของพนักงานแต่ละคนในแต่ละเดือน
+                        </p>
+                    </div>
+                    <div class="card-body">
+                        <div id="staff-monthly-sales-result"></div>
                     </div>
                 </div>
             </div>
@@ -389,9 +429,11 @@
                     'staff-performance': 'staff_performance',
                     'staff-products': 'staff_products',
                     'staff-orders': 'staff_orders',
+                    'staff-order-details': 'staff_order_details',
                     'staff-efficiency': 'staff_efficiency',
                     'staff-comparison': 'staff_comparison',
                     'staff-customers': 'staff_customers',
+                    'staff-monthly-sales': 'staff_monthly_sales',
                     'advanced-queries': 'advanced_queries'
                 };
 
